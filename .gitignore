@@ -1,0 +1,13 @@
+node_modules
+node_modules/
+dist
+dist/
+*.wgt
+*.zip
+temp/
+download_config.ini
+*secret.txt
+.env
+.env.local
+.DS_Store
+android/

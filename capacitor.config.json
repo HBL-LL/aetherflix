@@ -1,0 +1,10 @@
+{
+  "appId": "com.aetherflix.tv",
+  "appName": "AetherFlix",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "cleartext": true,
+    "androidScheme": "http"
+  }
+}

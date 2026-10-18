@@ -1,0 +1,26 @@
+services:
+  streambert:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: streambert-web:latest
+    container_name: streambert-webapp
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - path: .env
+        required: false
+      - path: .env.local
+        required: false
+    environment:
+      - PORT=3000
+      - TMDB_API_KEY=${TMDB_API_KEY:-}
+    volumes:
+      - ./downloads:/app/downloads
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
