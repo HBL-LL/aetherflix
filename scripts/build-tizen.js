@@ -36,7 +36,7 @@ try {
   if (fs.existsSync(outputWgt)) {
     fs.unlinkSync(outputWgt);
   }
-  const pythonCmd = `python3 -c "import zipfile, os; wgt = zipfile.ZipFile('${outputWgt}', 'w', zipfile.ZIP_DEFLATED); [wgt.write(os.path.join(r, f), os.path.relpath(os.path.join(r, f), '${distDir}')) for r, d, files in os.walk('${distDir}') for f in files if f != 'AetherFlix.wgt']; wgt.close()"`;
+  const pythonCmd = `python3 -c "import zipfile, os; wgt = zipfile.ZipFile('${outputWgt}', 'w', zipfile.ZIP_DEFLATED); [wgt.write(os.path.join(r, f), os.path.relpath(os.path.join(r, f), '${distDir}')) for r, d, files in os.walk('${distDir}') for f in files if not f.endswith(('.wgt', '.apk', '.dmg', '.exe', '.deb', '.rpm', '.AppImage', '.zip', '.blockmap', '.yaml'))]; wgt.close()"`;
   execSync(pythonCmd, { stdio: 'inherit' });
 
   const stats = fs.statSync(outputWgt);

@@ -47,7 +47,7 @@ Stream any Movie, TV Series, or Anime with zero ads, rich TMDB metadata, and a m
 #### Using Docker Compose (Recommended)
 ```bash
 # 1. Clone the repository
-git clone https://github.com/<your-username>/aetherflix.git
+git clone https://github.com/Hamza-Boulila/aetherflix.git
 cd aetherflix
 
 # 2. Add your free TMDB API Read Access Token in .env
@@ -70,39 +70,38 @@ npm start
 
 ## 📱 Building for Android TV / Google TV / Fire TV
 
+> **⚡ Quick Build (All Smart TV Platforms):**
+> Run `npm run build:tv:all` to package both the signed **Android TV APK** (`dist/AetherFlix.apk`) and the **Samsung Tizen OS Widget** (`dist/AetherFlix.wgt`) in one command.
+
 AetherFlix includes an automated setup script that configures Capacitor with Android TV Leanback launcher support, hardware feature flags, cleartext traffic permissions, and TV banner icons.
 
 ### Prerequisites
 - Node.js 18+
 - Android Studio & Android SDK
 
-### Steps to Build the Android TV APK:
+### Steps to Build the Android TV Release APK:
 ```bash
 # 1. Install dependencies
 npm install
 
-# 2. Automatically generate and patch the Android TV project
-npm run setup:android
-
-# 3. Build the APK using Gradle
-cd android
-./gradlew assembleDebug
+# 2. Build the signed Release APK (automatically configures Leanback & TV WebView)
+npm run build:android:release
 ```
 
-The generated APK will be at:
+The generated release APK is saved directly to:
 ```text
-android/app/build/outputs/apk/debug/app-debug.apk
+dist/AetherFlix.apk
 ```
 
-### Sideloading onto Android TV or Firestick:
-1. On your Android TV / Fire TV: Go to **Settings** → **Device / About** → click **Build** 7 times to enable **Developer Options**.
+### Sideloading onto Android TV, Google TV, or Fire TV:
+1. On your Android TV / Google TV / Fire TV: Go to **Settings** → **Device / About** → click **Build** 7 times to enable **Developer Options**.
 2. Under Developer Options, enable **USB Debugging** (or **Network ADB Debugging**).
 3. Connect your computer to your TV over WiFi and install:
    ```bash
    adb connect <YOUR_TV_IP>:5555
-   adb install android/app/build/outputs/apk/debug/app-debug.apk
+   adb install -r dist/AetherFlix.apk
    ```
-*(Alternatively, copy `app-debug.apk` to a USB drive or use the **Downloader** app on Fire TV).*
+*(Alternatively, copy `dist/AetherFlix.apk` to a USB drive or host it on your local network to open with the **Downloader** app on Fire TV).*
 
 ---
 

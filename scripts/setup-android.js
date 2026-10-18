@@ -35,11 +35,11 @@ if (fs.existsSync(manifestPath)) {
 
   // Add TV feature flags if missing
   if (!manifest.includes('android.software.leanback')) {
+    const internetPerm = manifest.includes('android.permission.INTERNET') ? '' : '\n    <uses-permission android:name="android.permission.INTERNET" />';
     const features = `
     <!-- Android TV Leanback support -->
     <uses-feature android:name="android.software.leanback" android:required="false" />
-    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />${internetPerm}
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />`;
     manifest = manifest.replace('<application', features + '\n\n    <application');
   }
@@ -109,8 +109,42 @@ public class MainActivity extends BridgeActivity {
   }
 }
 
+// 5. Configure release signing & generate keystore if needed
+const appGradlePath = path.join(androidDir, 'app', 'build.gradle');
+const keystorePath = path.join(androidDir, 'app', 'aetherflix-release.keystore');
+
+if (fs.existsSync(appGradlePath)) {
+  let gradleContent = fs.readFileSync(appGradlePath, 'utf8');
+  if (!gradleContent.includes('signingConfigs')) {
+    const signingSnippet = `    signingConfigs {
+        release {
+            storeFile file('aetherflix-release.keystore')
+            storePassword 'aetherflix'
+            keyAlias 'aetherflix'
+            keyPassword 'aetherflix'
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release`;
+    gradleContent = gradleContent.replace('buildTypes {\n        release {', signingSnippet);
+    fs.writeFileSync(appGradlePath, gradleContent, 'utf8');
+    console.log('✓ Configured release signing in android/app/build.gradle');
+  }
+}
+
+if (!fs.existsSync(keystorePath)) {
+  try {
+    const keytoolCmd = `keytool -genkeypair -v -keystore "${keystorePath}" -alias aetherflix -keyalg RSA -keysize 2048 -validity 10000 -storepass aetherflix -keypass aetherflix -dname "CN=AetherFlix, OU=AetherFlix, O=AetherFlix, L=SmartTV, ST=Release, C=US"`;
+    execSync(keytoolCmd, { stdio: 'ignore' });
+    console.log('✓ Generated release keystore at android/app/aetherflix-release.keystore');
+  } catch (e) {
+    console.warn('Could not auto-generate keystore with keytool:', e.message);
+  }
+}
+
 console.log('\n\x1b[32m✓ Android TV setup completed successfully!\x1b[0m');
-console.log('\n\x1b[33mTo build the Android TV APK:\x1b[0m');
-console.log('1. Run: cd android && ./gradlew assembleDebug');
-console.log('2. Output APK will be at: android/app/build/outputs/apk/debug/app-debug.apk');
-console.log('3. Sideload onto Android TV / Fire TV: adb connect <TV_IP>:5555 && adb install app-debug.apk\n');
+console.log('\n\x1b[33mTo build the Android TV APK in Release:\x1b[0m');
+console.log('1. Run: npm run build:android:release');
+console.log('2. Output APK will be at: dist/AetherFlix.apk');
+console.log('3. Sideload onto Android TV / Fire TV: adb connect <TV_IP>:5555 && adb install -r dist/AetherFlix.apk\n');
