@@ -145,5 +145,13 @@ When running AetherFlix as a sideloaded app on a TV, it connects to your self-ho
 
 ---
 
+## 🙏 Credits & Acknowledgements
+
+- **[Streambert](https://github.com/truelockmc/streambert)** by **[@truelockmc](https://github.com/truelockmc)** — Immense credit and special thanks to the original Streambert project for providing the foundational streaming architecture, UI design, player integration, and media handling upon which AetherFlix is built and extended with 10-foot D-Pad remote navigation and universal Smart TV support (Android TV, Google TV, Fire TV, and Samsung Tizen OS).
+- **[TMDB (The Movie Database)](https://www.themoviedb.org/)** — For comprehensive movie, television, and cast metadata.
+- **[Capacitor](https://capacitorjs.com/)** — Cross-platform runtime powering the native Android TV & Leanback launcher support.
+
+---
+
 ## 📄 License
-This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**.
+This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)** in accordance with the upstream Streambert license.
