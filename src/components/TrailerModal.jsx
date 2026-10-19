@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { CloseIcon, ExternalLinkIcon } from "./Icons";
 import { storage } from "../utils/storage";
+import { sanitizeIframeSrc } from "../utils/sanitizeUrl";
 
 export const DEFAULT_INVIDIOUS_BASE = "https://inv.nadeko.net";
 
@@ -84,7 +85,8 @@ export default function TrailerModal({ trailerKey, title, onClose }) {
     const instance = list[idx];
     const label = instance.replace(/^https?:\/\//, "");
     setStatusMsg(idx === 0 ? "Loading trailer…" : `Trying ${label}…`);
-    setCurrentSrc(`${instance}/embed/${trailerKey}?autoplay=1&listen=0`);
+    const cleanKey = encodeURIComponent(String(trailerKey || ""));
+    setCurrentSrc(`${instance}/embed/${cleanKey}?autoplay=1&listen=0`);
   }, [trailerKey]);
 
   useEffect(() => {
@@ -238,7 +240,7 @@ export default function TrailerModal({ trailerKey, title, onClose }) {
           {currentSrc && (
             <iframe
               ref={webviewRef}
-              src={currentSrc}
+              src={sanitizeIframeSrc(currentSrc)}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
               allowFullScreen
               style={{

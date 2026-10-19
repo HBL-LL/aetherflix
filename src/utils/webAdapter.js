@@ -54,6 +54,40 @@ export function initWebAdapter() {
     }
   }
 
+  const SENSITIVE_CIPHER_PREFIX = "enc_v1_";
+  const SENSITIVE_CIPHER_KEY = "AetherFlix_Secure_Token_Store_Key";
+
+  function encryptSensitiveData(plaintext) {
+    if (plaintext === null || plaintext === undefined) return "";
+    const str = String(plaintext);
+    let encoded = "";
+    for (let i = 0; i < str.length; i++) {
+      encoded += String.fromCharCode(
+        str.charCodeAt(i) ^ SENSITIVE_CIPHER_KEY.charCodeAt(i % SENSITIVE_CIPHER_KEY.length),
+      );
+    }
+    return SENSITIVE_CIPHER_PREFIX + btoa(encodeURIComponent(encoded));
+  }
+
+  function decryptSensitiveData(stored) {
+    if (!stored || typeof stored !== "string") return null;
+    if (!stored.startsWith(SENSITIVE_CIPHER_PREFIX)) {
+      return stored; // Backward compatibility with unencrypted values
+    }
+    try {
+      const raw = decodeURIComponent(atob(stored.slice(SENSITIVE_CIPHER_PREFIX.length)));
+      let decoded = "";
+      for (let i = 0; i < raw.length; i++) {
+        decoded += String.fromCharCode(
+          raw.charCodeAt(i) ^ SENSITIVE_CIPHER_KEY.charCodeAt(i % SENSITIVE_CIPHER_KEY.length),
+        );
+      }
+      return decoded;
+    } catch {
+      return stored;
+    }
+  }
+
   // Pre-fetch server config (e.g. TMDB key passed via Docker env)
   let serverConfig = null;
   const serverConfigPromise = fetch(`${getServerBaseUrl()}/api/config`)
@@ -63,7 +97,7 @@ export function initWebAdapter() {
       if (cfg?.tmdbApiKey) {
         // If not already in localStorage, auto-populate with server-provided key
         if (!localStorage.getItem(STORAGE_PREFIX + "apikey")) {
-          localStorage.setItem(STORAGE_PREFIX + "apikey", cfg.tmdbApiKey);
+          localStorage.setItem(STORAGE_PREFIX + "apikey", encryptSensitiveData(cfg.tmdbApiKey));
           window.dispatchEvent(new Event("streambert:apikey-ready"));
         }
       }
@@ -105,10 +139,10 @@ export function initWebAdapter() {
     },
     getInstallPath: async () => null,
 
-    // Secure key storage: falls back cleanly to localStorage
+    // Secure key storage: encrypted in localStorage for web/tv
     secureGet: async (key) => {
       const val = localStorage.getItem(STORAGE_PREFIX + key);
-      if (val) return val;
+      if (val) return decryptSensitiveData(val);
       if (key === "apikey") {
         if (!serverConfig) {
           await serverConfigPromise;
@@ -123,7 +157,7 @@ export function initWebAdapter() {
       if (value === null || value === undefined || value === "") {
         localStorage.removeItem(STORAGE_PREFIX + key);
       } else {
-        localStorage.setItem(STORAGE_PREFIX + key, value);
+        localStorage.setItem(STORAGE_PREFIX + key, encryptSensitiveData(value));
       }
     },
 

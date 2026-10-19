@@ -50,6 +50,7 @@ import DownloadModal from "../components/DownloadModal";
 import TrailerModal from "../components/TrailerModal";
 import BlockedStatsModal from "../components/BlockedStatsModal";
 import { useBlockedStats } from "../utils/useBlockedStats";
+import { sanitizeIframeSrc } from "../utils/sanitizeUrl";
 import {
   storage,
   STORAGE_KEYS,
@@ -2117,7 +2118,7 @@ export default function TVPage({
                 )}
                 <iframe
                   ref={webviewRef}
-                  src={
+                  src={sanitizeIframeSrc(
                     pipOpen
                       ? "about:blank"
                       : isAsync
@@ -2132,7 +2133,7 @@ export default function TVPage({
                             playerAccentColor,
                             playerSubLang,
                           ) || "about:blank"
-                  }
+                  )}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
                   allowFullScreen
                   style={{

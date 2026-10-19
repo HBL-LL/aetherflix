@@ -43,6 +43,7 @@ import DownloadModal from "../components/DownloadModal";
 import TrailerModal from "../components/TrailerModal";
 import BlockedStatsModal from "../components/BlockedStatsModal";
 import { useBlockedStats } from "../utils/useBlockedStats";
+import { sanitizeIframeSrc } from "../utils/sanitizeUrl";
 import MediaCard from "../components/MediaCard";
 import {
   storage,
@@ -1034,7 +1035,7 @@ export default function MoviePage({
             )}
             <iframe
               ref={webviewRef}
-              src={
+              src={sanitizeIframeSrc(
                 pipOpen
                   ? "about:blank"
                   : sourceIsAsync(playerSource)
@@ -1049,7 +1050,7 @@ export default function MoviePage({
                         playerAccentColor,
                         playerSubLang,
                       )
-              }
+              )}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
               allowFullScreen
               style={{

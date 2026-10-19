@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
+const rateLimit = require("express-rate-limit");
 const allmangaService = require("./src/server/allmangaService");
 const subtitlesService = require("./src/server/subtitlesService");
 
@@ -34,6 +35,25 @@ const subtitlesService = require("./src/server/subtitlesService");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const HOST = "0.0.0.0";
+
+// Security & Rate Limiting
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many requests, please try again later." },
+});
+
+app.use(globalLimiter);
+app.use("/api/", apiLimiter);
 
 // Security & CORS
 app.use(cors());
@@ -81,7 +101,10 @@ app.post("/api/allmanga/resolve", async (req, res) => {
 
 app.post("/api/allmanga/set-player-video", (req, res) => {
   const { url, referer, startTime } = req.body || {};
-  const playerUrl = `/api/player?url=${encodeURIComponent(url || "")}&referer=${encodeURIComponent(referer || "")}&t=${startTime || 0}`;
+  const safeUrl = typeof url === "string" ? url : "";
+  const safeReferer = typeof referer === "string" ? referer : "";
+  const safeStartTime = Number(startTime) || 0;
+  const playerUrl = `/api/player?url=${encodeURIComponent(safeUrl)}&referer=${encodeURIComponent(safeReferer)}&t=${safeStartTime}`;
   res.json({ playerUrl });
 });
 
@@ -91,12 +114,35 @@ app.get("/api/allmanga/proxy", (req, res) => {
 
 app.get("/api/player", (req, res) => {
   const { url, t, referer } = req.query;
-  if (!url) {
-    return res.status(400).send("Missing video URL");
+  if (!url || typeof url !== "string") {
+    return res.status(400).send("Missing or invalid video URL");
   }
-  const html = allmangaService.buildPlayerHtml(url, Number(t) || 0, referer || "https://allmanga.to");
+
+  // Validate URL protocol strictly
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return res.status(400).send("Invalid URL protocol");
+    }
+  } catch {
+    return res.status(400).send("Invalid video URL format");
+  }
+
+  let safeReferer = "https://allmanga.to";
+  if (referer && typeof referer === "string") {
+    try {
+      const parsedRef = new URL(referer);
+      if (parsedRef.protocol === "http:" || parsedRef.protocol === "https:") {
+        safeReferer = parsedRef.href;
+      }
+    } catch {}
+  }
+
+  const safeTime = Math.max(0, Number(t) || 0);
+  const html = allmangaService.buildPlayerHtml(url, safeTime, safeReferer);
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
+  res.setHeader("X-Content-Type-Options", "nosniff");
   res.send(html);
 });
 

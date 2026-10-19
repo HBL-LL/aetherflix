@@ -152,10 +152,39 @@ async function searchSubtitles({
   return { ok: true, results };
 }
 
-async function downloadSubtitle({ url }) {
-  if (!url) return { ok: false, error: "No URL provided" };
+const ALLOWED_SUBTITLE_HOSTS = [
+  "subdl.com",
+  "dl.subdl.com",
+  "api.subdl.com",
+  "wyzie.io",
+  "sub.wyzie.io",
+  "subs.wyzie.ru",
+  "wyzie.ru",
+];
+
+function isSafeSubtitleUrl(inputUrl) {
+  if (!inputUrl || typeof inputUrl !== "string") return false;
   try {
-    const res = await fetchWithTimeout(url, { headers: { "User-Agent": "Streambert" } }, 15000);
+    const parsed = new URL(inputUrl);
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+      return false;
+    }
+    const host = parsed.hostname.toLowerCase();
+    return ALLOWED_SUBTITLE_HOSTS.some(
+      (allowed) => host === allowed || host.endsWith("." + allowed),
+    );
+  } catch {
+    return false;
+  }
+}
+
+async function downloadSubtitle({ url }) {
+  if (!url || typeof url !== "string") return { ok: false, error: "No URL provided" };
+  if (!isSafeSubtitleUrl(url)) {
+    return { ok: false, error: "Untrusted or disallowed subtitle download URL" };
+  }
+  try {
+    const res = await fetchWithTimeout(url, { headers: { "User-Agent": "AetherFlix" } }, 15000);
     if (!res.ok) return { ok: false, error: `Failed to fetch: HTTP ${res.status}` };
 
     const arrayBuf = await res.arrayBuffer();

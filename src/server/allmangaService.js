@@ -598,14 +598,18 @@ async function resolveAllManga({ title, seasonNumber, episodeNumber, isMovie, tr
 }
 
 function streamProxy(req, res) {
-  const target = req.query.url;
-  const referer = req.query.referer || "https://allmanga.to";
+  const target = typeof req.query.url === "string" ? req.query.url : "";
+  const referer = typeof req.query.referer === "string" ? req.query.referer : "https://allmanga.to";
   if (!target) {
     res.status(400).send("Missing target URL");
     return;
   }
   try {
     const targetUrl = new URL(target);
+    if (targetUrl.protocol !== "https:" && targetUrl.protocol !== "http:") {
+      res.status(400).send("Invalid protocol");
+      return;
+    }
     const lib = targetUrl.protocol === "https:" ? https : http;
     const proxyReq = lib.request(
       {
@@ -648,17 +652,24 @@ function streamProxy(req, res) {
 }
 
 function buildPlayerHtml(videoUrl, startTime = 0, referer = "https://allmanga.to") {
-  const isM3u8 = videoUrl.includes(".m3u8");
+  const safeVideoUrl = typeof videoUrl === "string" ? videoUrl : "";
+  const safeReferer = typeof referer === "string" ? referer : "https://allmanga.to";
+  const isM3u8 = safeVideoUrl.includes(".m3u8");
   const streamSrc = isM3u8
-    ? videoUrl
-    : `/api/allmanga/proxy?url=${encodeURIComponent(videoUrl)}&referer=${encodeURIComponent(referer)}`;
+    ? safeVideoUrl
+    : `/api/allmanga/proxy?url=${encodeURIComponent(safeVideoUrl)}&referer=${encodeURIComponent(safeReferer)}`;
+
+  const safeJsonVideoUrl = JSON.stringify(safeVideoUrl).replace(/</g, "\\u003c");
+  const safeJsonStartTime = Number(startTime) || 0;
+  const escapeHtmlAttr = (str) =>
+    String(str).replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Streambert Player</title>
+  <title>AetherFlix Player</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { width: 100%; height: 100%; background: #000; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -666,15 +677,15 @@ function buildPlayerHtml(videoUrl, startTime = 0, referer = "https://allmanga.to
   </style>
 </head>
 <body>
-  <video id="v" src="${isM3u8 ? "" : streamSrc}" autoplay controls playsinline crossorigin="anonymous"></video>
+  <video id="v" src="${isM3u8 ? "" : escapeHtmlAttr(streamSrc)}" autoplay controls playsinline crossorigin="anonymous"></video>
   ${
     isM3u8
       ? `
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
   <script>
     const video = document.getElementById('v');
-    const src = decodeURIComponent("${encodeURIComponent(videoUrl)}");
-    const startTime = ${Number(startTime) || 0};
+    const src = ${safeJsonVideoUrl};
+    const startTime = ${safeJsonStartTime};
     if (Hls.isSupported()) {
       const hls = new Hls();
       hls.loadSource(src);
@@ -688,10 +699,10 @@ function buildPlayerHtml(videoUrl, startTime = 0, referer = "https://allmanga.to
       if (startTime > 0) video.addEventListener('loadedmetadata', () => { video.currentTime = startTime; }, { once: true });
     }
   </script>`
-      : startTime > 0
+      : safeJsonStartTime > 0
         ? `<script>
     const v = document.getElementById('v');
-    v.addEventListener('loadedmetadata', () => { v.currentTime = ${Number(startTime) || 0}; }, { once: true });
+    v.addEventListener('loadedmetadata', () => { v.currentTime = ${safeJsonStartTime}; }, { once: true });
   </script>`
         : ""
   }

@@ -1,19 +1,62 @@
 // localStorage-based persistence (works in both Vite dev and prod)
 
 const PREFIX = "streambert_";
+const SENSITIVE_STORAGE_CIPHER_PREFIX = "enc_v1_";
+const SENSITIVE_STORAGE_KEY = "AetherFlix_Secure_Storage_Key";
+
+function encryptStorageValue(plaintext) {
+  if (plaintext === null || plaintext === undefined) return "";
+  const str = typeof plaintext === "string" ? plaintext : JSON.stringify(plaintext);
+  let encoded = "";
+  for (let i = 0; i < str.length; i++) {
+    encoded += String.fromCharCode(
+      str.charCodeAt(i) ^ SENSITIVE_STORAGE_KEY.charCodeAt(i % SENSITIVE_STORAGE_KEY.length),
+    );
+  }
+  return SENSITIVE_STORAGE_CIPHER_PREFIX + btoa(encodeURIComponent(encoded));
+}
+
+function decryptStorageValue(stored) {
+  if (!stored || typeof stored !== "string") return null;
+  if (!stored.startsWith(SENSITIVE_STORAGE_CIPHER_PREFIX)) {
+    return stored; // Backward compatibility for unencrypted values
+  }
+  try {
+    const raw = decodeURIComponent(atob(stored.slice(SENSITIVE_STORAGE_CIPHER_PREFIX.length)));
+    let decoded = "";
+    for (let i = 0; i < raw.length; i++) {
+      decoded += String.fromCharCode(
+        raw.charCodeAt(i) ^ SENSITIVE_STORAGE_KEY.charCodeAt(i % SENSITIVE_STORAGE_KEY.length),
+      );
+    }
+    return decoded;
+  } catch {
+    return stored;
+  }
+}
+
+const SENSITIVE_KEY_PATTERN = /(?:key|token|secret|password|auth|credential)/i;
 
 export const storage = {
   get(key) {
     try {
       const raw = localStorage.getItem(PREFIX + key);
-      return raw ? JSON.parse(raw) : null;
+      if (!raw) return null;
+      const data = SENSITIVE_KEY_PATTERN.test(key) ? decryptStorageValue(raw) : raw;
+      try {
+        return JSON.parse(data);
+      } catch {
+        return data;
+      }
     } catch {
       return null;
     }
   },
   set(key, value) {
     try {
-      localStorage.setItem(PREFIX + key, JSON.stringify(value));
+      const json = JSON.stringify(value);
+      const toStore = SENSITIVE_KEY_PATTERN.test(key) ? encryptStorageValue(json) : json;
+      localStorage.setItem(PREFIX + key, toStore);
     } catch {}
   },
   remove(key) {
@@ -100,7 +143,16 @@ export const STORAGE_KEYS = {
   GAMEPAD_ENABLED: "gamepadEnabled",
 };
 
-export const getApiKey = () => storage.get(STORAGE_KEYS.API_KEY);
+export const getApiKey = () => {
+  const fromStorage = storage.get(STORAGE_KEYS.API_KEY);
+  if (fromStorage) return fromStorage;
+  try {
+    const raw = localStorage.getItem("streambert_apikey");
+    return raw ? decryptStorageValue(raw) : null;
+  } catch {
+    return null;
+  }
+};
 
 // ── Source failover cache ────────────────────────────────────────────────────
 // AllManga doesn't always have every episode; rather than nag the user every
