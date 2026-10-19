@@ -173,8 +173,15 @@ async function downloadSubtitle({ url }) {
   }
 
   const hostname = parsed.hostname.toLowerCase();
-  const trustedBase = SUBTITLE_PROVIDERS[hostname];
-  if (!trustedBase) {
+  let baseOrigin = null;
+  if (hostname === "dl.subdl.com") baseOrigin = "https://dl.subdl.com";
+  else if (hostname === "subdl.com") baseOrigin = "https://subdl.com";
+  else if (hostname === "api.subdl.com") baseOrigin = "https://api.subdl.com";
+  else if (hostname === "sub.wyzie.io") baseOrigin = "https://sub.wyzie.io";
+  else if (hostname === "subs.wyzie.ru") baseOrigin = "https://subs.wyzie.ru";
+  else if (hostname === "wyzie.ru") baseOrigin = "https://wyzie.ru";
+  else if (hostname === "wyzie.io") baseOrigin = "https://wyzie.io";
+  else {
     return { ok: false, error: "Untrusted or disallowed subtitle download host" };
   }
 
@@ -182,24 +189,24 @@ async function downloadSubtitle({ url }) {
     return { ok: false, error: "Only HTTPS subtitle URLs are allowed" };
   }
 
-  // Normalize the path so a protocol-relative or dot-prefixed pathname
-  // (e.g. "//evil.com/x") cannot re-target a different host when resolved
-  // against the trusted base.
-  const safePath =
-    "/" + parsed.pathname.replace(/^\/+|\/+$/g, "").replace(/\.\.+/g, "") || "/";
-  const safeSearch = parsed.search.replace(/\.\.+/g, "");
-
-  // Construct target URL using the trusted base and the sanitized path
-  try {
-    const rebuilt = new URL(safePath + safeSearch, trustedBase);
-    // Triple-check the rebuilt URL still points at an allowlisted host
-    if (!SUBTITLE_PROVIDERS[rebuilt.hostname.toLowerCase()]) {
-      return { ok: false, error: "Untrusted or disallowed subtitle download host" };
-    }
-    var targetUrl = rebuilt.href;
-  } catch {
-    return { ok: false, error: "Invalid subtitle URL" };
+  // Strictly sanitize pathname to disallow protocol-relative or directory traversal paths
+  const rawPath = parsed.pathname || "/";
+  if (
+    !/^\/[a-zA-Z0-9_\-\.\/]+$/.test(rawPath) ||
+    rawPath.includes("..") ||
+    rawPath.startsWith("//")
+  ) {
+    return { ok: false, error: "Disallowed subtitle path characters" };
   }
+
+  // Safe search parameters
+  let safeSearch = "";
+  if (parsed.search) {
+    const searchParams = new URLSearchParams(parsed.search);
+    safeSearch = "?" + searchParams.toString();
+  }
+
+  const targetUrl = `${baseOrigin}${rawPath}${safeSearch}`;
 
   try {
     const res = await fetchWithTimeout(targetUrl, { headers: { "User-Agent": "AetherFlix" } }, 15000);
