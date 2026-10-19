@@ -32,7 +32,7 @@
     "open:android": "npx cap open android"
   },
   "dependencies": {
-    "@capacitor/core": "^6.2.2",
+    "@capacitor/core": "^8.5.3",
     "approve": "^0.0.12",
     "cors": "^2.8.6",
     "crypto-js": "^4.2.0",
