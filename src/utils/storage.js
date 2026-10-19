@@ -1,39 +1,7 @@
 // localStorage-based persistence (works in both Vite dev and prod)
+import { encryptStorageValue, decryptStorageValue } from "./crypto";
 
 const PREFIX = "streambert_";
-const SENSITIVE_STORAGE_CIPHER_PREFIX = "enc_v1_";
-const SENSITIVE_STORAGE_KEY = "AetherFlix_Secure_Storage_Key";
-
-function encryptStorageValue(plaintext) {
-  if (plaintext === null || plaintext === undefined) return "";
-  const str = typeof plaintext === "string" ? plaintext : JSON.stringify(plaintext);
-  let encoded = "";
-  for (let i = 0; i < str.length; i++) {
-    encoded += String.fromCharCode(
-      str.charCodeAt(i) ^ SENSITIVE_STORAGE_KEY.charCodeAt(i % SENSITIVE_STORAGE_KEY.length),
-    );
-  }
-  return SENSITIVE_STORAGE_CIPHER_PREFIX + btoa(encodeURIComponent(encoded));
-}
-
-function decryptStorageValue(stored) {
-  if (!stored || typeof stored !== "string") return null;
-  if (!stored.startsWith(SENSITIVE_STORAGE_CIPHER_PREFIX)) {
-    return stored; // Backward compatibility for unencrypted values
-  }
-  try {
-    const raw = decodeURIComponent(atob(stored.slice(SENSITIVE_STORAGE_CIPHER_PREFIX.length)));
-    let decoded = "";
-    for (let i = 0; i < raw.length; i++) {
-      decoded += String.fromCharCode(
-        raw.charCodeAt(i) ^ SENSITIVE_STORAGE_KEY.charCodeAt(i % SENSITIVE_STORAGE_KEY.length),
-      );
-    }
-    return decoded;
-  } catch {
-    return stored;
-  }
-}
 
 const SENSITIVE_KEY_PATTERN = /(?:key|token|secret|password|auth|credential)/i;
 
@@ -42,7 +10,7 @@ export const storage = {
     try {
       const raw = localStorage.getItem(PREFIX + key);
       if (!raw) return null;
-      const data = SENSITIVE_KEY_PATTERN.test(key) ? decryptStorageValue(raw) : raw;
+      const data = decryptStorageValue(raw);
       try {
         return JSON.parse(data);
       } catch {
@@ -55,7 +23,7 @@ export const storage = {
   set(key, value) {
     try {
       const json = JSON.stringify(value);
-      const toStore = SENSITIVE_KEY_PATTERN.test(key) ? encryptStorageValue(json) : json;
+      const toStore = encryptStorageValue(json);
       localStorage.setItem(PREFIX + key, toStore);
     } catch {}
   },
@@ -76,7 +44,6 @@ export const storage = {
 
 // Centralised storage key registry
 export const STORAGE_KEYS = {
-  API_KEY: "apikey",
   UPDATE_SOURCE: "updateSource",
   PLAYER_SOURCE: "playerSource",
   ALLMANGA_DUB_MODE: "allmangaDubMode",
@@ -144,8 +111,6 @@ export const STORAGE_KEYS = {
 };
 
 export const getApiKey = () => {
-  const fromStorage = storage.get(STORAGE_KEYS.API_KEY);
-  if (fromStorage) return fromStorage;
   try {
     const raw = localStorage.getItem("streambert_apikey");
     return raw ? decryptStorageValue(raw) : null;

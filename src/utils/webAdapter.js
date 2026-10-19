@@ -1,3 +1,8 @@
+import {
+  encryptStorageValue as encryptSensitiveData,
+  decryptStorageValue as decryptSensitiveData,
+} from "./crypto";
+
 // Helper to resolve remote server base URL for Smart TV & mobile clients
 export function getServerBaseUrl() {
   if (typeof window === "undefined") return "";
@@ -54,39 +59,6 @@ export function initWebAdapter() {
     }
   }
 
-  const SENSITIVE_CIPHER_PREFIX = "enc_v1_";
-  const SENSITIVE_CIPHER_KEY = "AetherFlix_Secure_Token_Store_Key";
-
-  function encryptSensitiveData(plaintext) {
-    if (plaintext === null || plaintext === undefined) return "";
-    const str = String(plaintext);
-    let encoded = "";
-    for (let i = 0; i < str.length; i++) {
-      encoded += String.fromCharCode(
-        str.charCodeAt(i) ^ SENSITIVE_CIPHER_KEY.charCodeAt(i % SENSITIVE_CIPHER_KEY.length),
-      );
-    }
-    return SENSITIVE_CIPHER_PREFIX + btoa(encodeURIComponent(encoded));
-  }
-
-  function decryptSensitiveData(stored) {
-    if (!stored || typeof stored !== "string") return null;
-    if (!stored.startsWith(SENSITIVE_CIPHER_PREFIX)) {
-      return stored; // Backward compatibility with unencrypted values
-    }
-    try {
-      const raw = decodeURIComponent(atob(stored.slice(SENSITIVE_CIPHER_PREFIX.length)));
-      let decoded = "";
-      for (let i = 0; i < raw.length; i++) {
-        decoded += String.fromCharCode(
-          raw.charCodeAt(i) ^ SENSITIVE_CIPHER_KEY.charCodeAt(i % SENSITIVE_CIPHER_KEY.length),
-        );
-      }
-      return decoded;
-    } catch {
-      return stored;
-    }
-  }
 
   // Pre-fetch server config (e.g. TMDB key passed via Docker env)
   let serverConfig = null;

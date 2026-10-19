@@ -7,6 +7,7 @@ import {
   useCallback,
   useMemo,
 } from "react";
+import DOMPurify from "dompurify";
 import {
   tmdbFetch,
   imgUrl,
@@ -1033,40 +1034,44 @@ export default function MoviePage({
                 </button>
               </div>
             )}
-            <iframe
-              ref={webviewRef}
-              src={sanitizeIframeSrc(
-                pipOpen
-                  ? "about:blank"
-                  : sourceIsAsync(playerSource)
-                    ? resolvedPlayerUrl || "about:blank"
-                    : getSourceUrl(
-                        playerSource,
-                        "movie",
-                        item.id,
-                        null,
-                        null,
-                        {},
-                        playerAccentColor,
-                        playerSubLang,
-                      )
-              )}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
-              allowFullScreen
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                border: "none",
-                visibility:
-                  webviewLoading ||
-                  (sourceIsAsync(playerSource) && !resolvedPlayerUrl)
-                    ? "hidden"
-                    : "visible",
-              }}
-              onLoad={() => setWebviewLoading(false)}
-            />
+            {(() => {
+              const rawSrc = pipOpen
+                ? "about:blank"
+                : sourceIsAsync(playerSource)
+                  ? resolvedPlayerUrl || "about:blank"
+                  : getSourceUrl(
+                      playerSource,
+                      "movie",
+                      item.id,
+                      null,
+                      null,
+                      {},
+                      playerAccentColor,
+                      playerSubLang,
+                    ) || "about:blank";
+              const safeSrc = sanitizeIframeSrc(rawSrc);
+              return (
+                <iframe
+                  ref={webviewRef}
+                  src={DOMPurify.sanitize(safeSrc)}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+                  allowFullScreen
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    border: "none",
+                    visibility:
+                      webviewLoading ||
+                      (sourceIsAsync(playerSource) && !resolvedPlayerUrl)
+                        ? "hidden"
+                        : "visible",
+                  }}
+                  onLoad={() => setWebviewLoading(false)}
+                />
+              );
+            })()}
             {/* Left-side overlay button group, flex row, no fixed px offsets */}
             <div className="player-overlay-group">
               <button

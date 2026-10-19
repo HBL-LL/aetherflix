@@ -152,39 +152,37 @@ async function searchSubtitles({
   return { ok: true, results };
 }
 
-const ALLOWED_SUBTITLE_HOSTS = [
-  "subdl.com",
-  "dl.subdl.com",
-  "api.subdl.com",
-  "wyzie.io",
-  "sub.wyzie.io",
-  "subs.wyzie.ru",
-  "wyzie.ru",
-];
-
-function isSafeSubtitleUrl(inputUrl) {
-  if (!inputUrl || typeof inputUrl !== "string") return false;
-  try {
-    const parsed = new URL(inputUrl);
-    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
-      return false;
-    }
-    const host = parsed.hostname.toLowerCase();
-    return ALLOWED_SUBTITLE_HOSTS.some(
-      (allowed) => host === allowed || host.endsWith("." + allowed),
-    );
-  } catch {
-    return false;
-  }
-}
+const SUBTITLE_PROVIDERS = {
+  "dl.subdl.com": "https://dl.subdl.com",
+  "subdl.com": "https://subdl.com",
+  "api.subdl.com": "https://api.subdl.com",
+  "sub.wyzie.io": "https://sub.wyzie.io",
+  "subs.wyzie.ru": "https://subs.wyzie.ru",
+  "wyzie.ru": "https://wyzie.ru",
+  "wyzie.io": "https://wyzie.io",
+};
 
 async function downloadSubtitle({ url }) {
   if (!url || typeof url !== "string") return { ok: false, error: "No URL provided" };
-  if (!isSafeSubtitleUrl(url)) {
-    return { ok: false, error: "Untrusted or disallowed subtitle download URL" };
-  }
+
+  let parsed;
   try {
-    const res = await fetchWithTimeout(url, { headers: { "User-Agent": "AetherFlix" } }, 15000);
+    parsed = new URL(url);
+  } catch {
+    return { ok: false, error: "Invalid subtitle URL" };
+  }
+
+  const hostname = parsed.hostname.toLowerCase();
+  const trustedBase = SUBTITLE_PROVIDERS[hostname];
+  if (!trustedBase) {
+    return { ok: false, error: "Untrusted or disallowed subtitle download host" };
+  }
+
+  // Construct target URL using the trusted base and validated path
+  const targetUrl = new URL(parsed.pathname + parsed.search, trustedBase).href;
+
+  try {
+    const res = await fetchWithTimeout(targetUrl, { headers: { "User-Agent": "AetherFlix" } }, 15000);
     if (!res.ok) return { ok: false, error: `Failed to fetch: HTTP ${res.status}` };
 
     const arrayBuf = await res.arrayBuffer();

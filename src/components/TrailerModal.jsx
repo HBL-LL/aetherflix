@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import DOMPurify from "dompurify";
 import { CloseIcon, ExternalLinkIcon } from "./Icons";
 import { storage } from "../utils/storage";
 import { sanitizeIframeSrc } from "../utils/sanitizeUrl";
@@ -240,7 +241,7 @@ export default function TrailerModal({ trailerKey, title, onClose }) {
           {currentSrc && (
             <iframe
               ref={webviewRef}
-              src={sanitizeIframeSrc(currentSrc)}
+              src={DOMPurify.sanitize(sanitizeIframeSrc(currentSrc))}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
               allowFullScreen
               style={{

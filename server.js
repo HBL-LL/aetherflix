@@ -157,8 +157,12 @@ app.post("/api/subtitles/search", async (req, res) => {
 });
 
 app.post("/api/subtitles/download", async (req, res) => {
+  const { url } = req.body || {};
+  if (!url || typeof url !== "string") {
+    return res.status(400).json({ ok: false, error: "Missing or invalid subtitle URL" });
+  }
   try {
-    const result = await subtitlesService.downloadSubtitle(req.body || {});
+    const result = await subtitlesService.downloadSubtitle({ url });
     res.json(result);
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });

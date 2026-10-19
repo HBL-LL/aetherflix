@@ -7,6 +7,7 @@ import {
   useCallback,
   memo,
 } from "react";
+import DOMPurify from "dompurify";
 import {
   EPISODE_GROUP_IDS,
   applyEpisodeMapping,
@@ -2116,28 +2117,30 @@ export default function TVPage({
                     </div>
                   </div>
                 )}
-                <iframe
-                  ref={webviewRef}
-                  src={sanitizeIframeSrc(
-                    pipOpen
-                      ? "about:blank"
-                      : isAsync
-                        ? resolvedPlayerUrl || "about:blank"
-                        : getSourceUrl(
-                            playerSource,
-                            "tv",
-                            item.id,
-                            playerEp.season,
-                            playerEp.episode,
-                            {},
-                            playerAccentColor,
-                            playerSubLang,
-                          ) || "about:blank"
-                  )}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
-                  allowFullScreen
-                  style={{
-                    position: "absolute",
+                {(() => {
+                  const rawSrc = pipOpen
+                    ? "about:blank"
+                    : isAsync
+                      ? resolvedPlayerUrl || "about:blank"
+                      : getSourceUrl(
+                          playerSource,
+                          "tv",
+                          item?.id,
+                          playerEp.season,
+                          playerEp.episode,
+                          {},
+                          playerAccentColor,
+                          playerSubLang,
+                        ) || "about:blank";
+                  const safeSrc = sanitizeIframeSrc(rawSrc);
+                  return (
+                    <iframe
+                      ref={webviewRef}
+                      src={DOMPurify.sanitize(safeSrc)}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+                      allowFullScreen
+                      style={{
+                        position: "absolute",
                     inset: 0,
                     width: "100%",
                     height: "100%",
@@ -2150,9 +2153,11 @@ export default function TVPage({
                         ? "hidden"
                         : "visible",
                   }}
-                  tabIndex={-1}
-                  onLoad={() => setWebviewLoading(false)}
-                />
+                      tabIndex={-1}
+                      onLoad={() => setWebviewLoading(false)}
+                    />
+                  );
+                })()}
                 {/* Left-side overlay button group, flex row, no fixed px offsets */}
                 <div className="player-overlay-group">
                   <button
