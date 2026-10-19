@@ -178,8 +178,28 @@ async function downloadSubtitle({ url }) {
     return { ok: false, error: "Untrusted or disallowed subtitle download host" };
   }
 
-  // Construct target URL using the trusted base and validated path
-  const targetUrl = new URL(parsed.pathname + parsed.search, trustedBase).href;
+  if (parsed.protocol !== "https:") {
+    return { ok: false, error: "Only HTTPS subtitle URLs are allowed" };
+  }
+
+  // Normalize the path so a protocol-relative or dot-prefixed pathname
+  // (e.g. "//evil.com/x") cannot re-target a different host when resolved
+  // against the trusted base.
+  const safePath =
+    "/" + parsed.pathname.replace(/^\/+|\/+$/g, "").replace(/\.\.+/g, "") || "/";
+  const safeSearch = parsed.search.replace(/\.\.+/g, "");
+
+  // Construct target URL using the trusted base and the sanitized path
+  try {
+    const rebuilt = new URL(safePath + safeSearch, trustedBase);
+    // Triple-check the rebuilt URL still points at an allowlisted host
+    if (!SUBTITLE_PROVIDERS[rebuilt.hostname.toLowerCase()]) {
+      return { ok: false, error: "Untrusted or disallowed subtitle download host" };
+    }
+    var targetUrl = rebuilt.href;
+  } catch {
+    return { ok: false, error: "Invalid subtitle URL" };
+  }
 
   try {
     const res = await fetchWithTimeout(targetUrl, { headers: { "User-Agent": "AetherFlix" } }, 15000);
