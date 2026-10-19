@@ -67,14 +67,27 @@ export default function App() {
   // Navigation history stack for Ctrl+Z back navigation
   const [navStack, setNavStack] = useState([]);
 
-  const [saved, setSaved] = useState(() => storage.get("saved") || {});
+  const [saved, setSaved] = useState(() => {
+    const s = storage.get("saved");
+    return s && typeof s === "object" && !Array.isArray(s) ? s : {};
+  });
   // Separate order array for drag-and-drop reordering
-  const [savedOrder, setSavedOrder] = useState(
-    () => storage.get("savedOrder") || null,
-  );
-  const [progress, setProgress] = useState(() => storage.get("progress") || {});
-  const [history, setHistory] = useState(() => storage.get("history") || []);
-  const [watched, setWatched] = useState(() => storage.get("watched") || {});
+  const [savedOrder, setSavedOrder] = useState(() => {
+    const so = storage.get("savedOrder");
+    return Array.isArray(so) ? so : null;
+  });
+  const [progress, setProgress] = useState(() => {
+    const p = storage.get("progress");
+    return p && typeof p === "object" && !Array.isArray(p) ? p : {};
+  });
+  const [history, setHistory] = useState(() => {
+    const h = storage.get("history");
+    return Array.isArray(h) ? h : [];
+  });
+  const [watched, setWatched] = useState(() => {
+    const w = storage.get("watched");
+    return w && typeof w === "object" && !Array.isArray(w) ? w : {};
+  });
   const [toast, setToast] = useState(null);
   const [updateBanner, setUpdateBanner] = useState(null);
   const [showUpdateModal, setShowUpdateModal] = useState(false);

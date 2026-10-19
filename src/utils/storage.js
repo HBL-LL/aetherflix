@@ -9,6 +9,13 @@ export const storage = {
     try {
       const raw = localStorage.getItem(PREFIX + key);
       if (!raw) return null;
+      // Discard legacy encrypted values left over from earlier versions
+      if (typeof raw === "string" && (raw.startsWith("aes_") || raw.startsWith("enc_"))) {
+        try {
+          localStorage.removeItem(PREFIX + key);
+        } catch {}
+        return null;
+      }
       try {
         return JSON.parse(raw);
       } catch {
