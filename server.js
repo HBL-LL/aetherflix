@@ -156,11 +156,37 @@ app.post("/api/subtitles/search", async (req, res) => {
   }
 });
 
+const ALLOWED_SUBTITLE_HOSTS = new Set([
+  "dl.subdl.com",
+  "subdl.com",
+  "api.subdl.com",
+  "sub.wyzie.io",
+  "subs.wyzie.ru",
+  "wyzie.ru",
+  "wyzie.io",
+]);
+
 app.post("/api/subtitles/download", async (req, res) => {
   const { url } = req.body || {};
   if (!url || typeof url !== "string") {
     return res.status(400).json({ ok: false, error: "Missing or invalid subtitle URL" });
   }
+
+  try {
+    const parsed = new URL(url);
+    if (
+      parsed.protocol !== "https:" ||
+      !ALLOWED_SUBTITLE_HOSTS.has(parsed.hostname.toLowerCase())
+    ) {
+      return res.status(400).json({
+        ok: false,
+        error: "Untrusted or disallowed subtitle download URL",
+      });
+    }
+  } catch {
+    return res.status(400).json({ ok: false, error: "Invalid subtitle URL format" });
+  }
+
   try {
     const result = await subtitlesService.downloadSubtitle({ url });
     res.json(result);
