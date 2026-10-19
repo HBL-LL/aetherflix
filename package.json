@@ -46,7 +46,7 @@
     "@capacitor/android": "^6.2.2",
     "@capacitor/cli": "^6.2.2",
     "@vitejs/plugin-react": "^4.7.0",
-    "cross-env": "^7.0.3",
+    "cross-env": "^10.1.0",
     "electron": "^40.4.1",
     "electron-builder": "^26.7.0",
     "terser": "^5.46.0",
