@@ -64,7 +64,7 @@ jobs:
           cp android/app/build/outputs/apk/release/app-release-unsigned.apk dist/AetherFlix.apk || cp android/app/build/outputs/apk/release/*.apk dist/AetherFlix.apk
 
       - name: Upload Smart TV Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: smart-tv-packages
           path: |
@@ -91,7 +91,7 @@ jobs:
         run: npm run dist:mac
 
       - name: Upload macOS Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: macos-desktop-artifacts
           path: |
@@ -123,7 +123,7 @@ jobs:
         run: npm run dist:linux
 
       - name: Upload Linux Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-desktop-artifacts
           path: |
@@ -151,7 +151,7 @@ jobs:
         run: npm run dist:win
 
       - name: Upload Windows Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: windows-desktop-artifacts
           path: |
