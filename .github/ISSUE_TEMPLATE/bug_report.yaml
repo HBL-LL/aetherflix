@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report an issue or unexpected behavior that occurs within the application
+description: Report an issue or unexpected behavior that occurs within AetherFlix
 title: "[Bug]: "
 labels: ["bug"]
 body:
@@ -7,15 +7,16 @@ body:
     attributes:
       value: |
         **README: Before You Submit Your Issue**
-        - Issues are not a place to go ask support questions or start discussions. Please ask support questions or start discussions on the [discussions page](https://github.com/truelockmc/streambert/discussions).
+        - For general questions or discussions, please use the [Discussions page](https://github.com/Hamza-Boulila/aetherflix/discussions).
+        - Verify that you are running the latest version before reporting.
   - type: checkboxes
     attributes:
       label: Guidelines
       description: Please ensure you've completed all of the following.
       options:
-        - label: I have encountered this bug in the [latest release of Streambert](https://github.com/truelockmc/streambert/releases).
+        - label: I have encountered this bug in the [latest release of AetherFlix](https://github.com/Hamza-Boulila/aetherflix/releases).
           required: true
-        - label: I have [searched the issue tracker for open and closed issues](https://github.com/truelockmc/streambert/issues?q=is%3Aissue+sort%3Arelevance-desc) that are similar to the bug report I want to file, without success.
+        - label: I have [searched the issue tracker for open and closed issues](https://github.com/Hamza-Boulila/aetherflix/issues?q=is%3Aissue+sort%3Arelevance-desc) that are similar to the bug report I want to file, without success.
           required: true
         - label: This issue contains only one bug.
           required: true
@@ -24,9 +25,9 @@ body:
       label: Describe the bug
       description: A clear and concise description of what the bug is.
       placeholder: |
-        1. Go to '...'
-        2. Click on '....'
-        3. Scroll down to '....'
+        1. Open AetherFlix
+        2. Navigate to '...' using TV remote / mouse / keyboard
+        3. Click / press OK on '....'
         4. See error
     validations:
       required: true
@@ -38,63 +39,83 @@ body:
       required: true
   - type: dropdown
     attributes:
-      label: "Issue Labels"
-      description: Please select a label that fits this bug report. Choose multiple, if applicable.
+      label: "Platform / Target Device"
+      description: Which platform or device did you encounter this issue on?
       multiple: true
       options:
-        - ads/trackers are coming trough
-        - accessibility issue
-        - causes crash
-        - content not loading
-        - data loss
-        - feature stopped working
-        - inconsistent behavior
-        - keyboard control not working
-        - race condition
-        - text/string issue
-        - usability issue
-        - visual bug
-        - a specific series/movie not working properly
-    validations:
-      required: true
-  - type: input
-    attributes:
-      label: Streambert Version
-      description: |
-        Enter the version of streambert you are using (you can check that in your settings).
-      placeholder: v2.2.1
-    validations:
-      required: true
-  - type: input
-    attributes:
-      label: Operating System Version
-      description: What operating system version are you using? On Windows, click Start button > Settings > System > About. On macOS, click the Apple Menu > About This Mac. On Linux, use lsb_release or uname -a.
-      placeholder: "e.g. Windows 10, macOS Catalina 10.15.7, or Ubuntu 20.04"
+        - Android TV / Google TV
+        - Amazon Fire TV
+        - Samsung Smart TV (Tizen OS)
+        - Web App / Docker (Browser)
+        - macOS (Desktop)
+        - Windows (Desktop)
+        - Linux (Desktop)
     validations:
       required: true
   - type: dropdown
     attributes:
-      label: Installation Method
-      description: Which filetype did you use to install the App.
+      label: "Issue Category"
+      description: Please select a label that fits this bug report. Choose multiple, if applicable.
+      multiple: true
       options:
-        - .AppImage
-        - .deb
-        - .dmg
-        - .exe
-        - .rpm
-        - other
+        - video playback / streaming failure
+        - D-pad / TV remote navigation
+        - subtitles download / parsing
+        - adblock / pop-up blocking
+        - audio / video sync
+        - UI / layout / font display
+        - app crash / freeze
+        - performance / stutter
+        - search / metadata not loading
+        - download / offline playback
     validations:
       required: true
+  - type: input
+    attributes:
+      label: AetherFlix Version
+      description: Enter the version of AetherFlix you are running (check in Settings).
+      placeholder: v1.0.0
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Device & OS Version
+      description: Device model and OS version (e.g., Chromecast with Google TV Android 12, Samsung QLED Tizen 6.5, macOS Sequoia 15.3, Windows 11, etc.).
+      placeholder: "e.g. Sony Bravia Android TV 11, Fire TV Stick 4K Max, macOS 15, Windows 11"
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Installation / Package Type
+      description: Which package or build did you use?
+      options:
+        - Android TV APK (.apk)
+        - Samsung Tizen WGT (.wgt)
+        - Docker Container (ghcr.io / local docker-compose)
+        - Web App (node server.js / Vite)
+        - macOS DMG / ZIP (.dmg)
+        - Windows Installer (.exe)
+        - Linux AppImage / DEB / RPM / Arch (.AppImage, .deb, .rpm, .pacman)
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Streaming Source & Content
+      description: If this issue is related to specific movies, series, anime, or video sources, please provide details.
+      placeholder: "Source: VidSrc / SuperEmbed / AllManga / etc. | Title: ..."
+    validations:
+      required: false
   - type: upload
     id: screenshots
     attributes:
       label: Upload screenshots or videos
-      description: If applicable, add screenshots or videos to help explain your problem.
+      description: If applicable, add screenshots or photos of your TV/screen to help explain your problem.
     validations:
       required: false
   - type: textarea
     attributes:
-      label: Additional Information
+      label: Logs & Additional Information
       description: |
-        Add additional information here.
-        You may drag-and-drop log files here, or paste the log file in code blocks.
+        Add browser console logs, server terminal logs, or any other context.
+    validations:
+      required: false

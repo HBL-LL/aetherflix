@@ -1,5 +1,5 @@
 name: Feature Request
-description: Suggest an idea for Streambert which you would like to see in a future release
+description: Suggest an idea or enhancement for AetherFlix
 title: "[Feature]: "
 labels: ["enhancement"]
 
@@ -7,9 +7,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        **README: Before You Submit Your Issue**
-        - Issues are not a place to go ask support questions or start discussions.
-        - Please use discussions instead: https://github.com/truelockmc/streambert/discussions
+        **README: Before You Submit Your Feature Request**
+        - For general questions or ideas you want to brainstorm first, visit the [Discussions page](https://github.com/Hamza-Boulila/aetherflix/discussions).
 
   - type: checkboxes
     attributes:
@@ -18,61 +17,70 @@ body:
       options:
         - label: I have searched the issue tracker and found no similar feature request
           required: true
-        - label: I have checked the documentation and found no existing solution
-          required: true
         - label: This issue contains only one feature request
           required: true
 
   - type: textarea
     attributes:
       label: Problem Description
-      description: What problem are you trying to solve?
+      description: What problem are you trying to solve, or what is currently missing?
     validations:
       required: true
 
   - type: textarea
     attributes:
       label: Proposed Solution
-      description: Describe your idea clearly
+      description: Describe your proposed feature or enhancement clearly.
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: Target Platforms
+      description: Which platforms would benefit most from this feature?
+      multiple: true
+      options:
+        - All Platforms
+        - Android TV / Google TV / Fire TV
+        - Samsung Smart TV (Tizen OS)
+        - Web App & Docker
+        - macOS Desktop
+        - Windows Desktop
+        - Linux Desktop
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: Feature Category
+      multiple: true
+      options:
+        - Smart TV / Remote / D-pad Navigation
+        - Video Player / Streaming Provider
+        - Subtitles / Multi-language Audio
+        - UI / UX / Cinematic Themes
+        - Offline Downloads & Local Playback
+        - Performance & Caching
+        - Adblock & Pop-up Shield
+        - Integrations (Discord RPC, AniList, TMDB)
     validations:
       required: true
 
   - type: textarea
     attributes:
       label: Alternatives Considered
-      description: Any alternative solutions?
+      description: Any alternative solutions or workarounds you have considered?
     validations:
-      required: true
-
-  - type: dropdown
-    attributes:
-      label: Feature Type
-      multiple: true
-      options:
-        - improvement to existing feature
-        - new feature
-        - UI / UX improvement
-        - performance improvement
-        - integration / external support
-    validations:
-      required: true
-
-  - type: input
-    attributes:
-      label: Streambert Version
-      description: Which version are you using?
-      placeholder: v2.2.1
-    validations:
-      required: true
+      required: false
 
   - type: upload
     attributes:
       label: Screenshots / Mockups
-      description: Optional, but helps explain the idea
+      description: Optional, but helps visualize the idea
     validations:
       required: false
 
   - type: textarea
     attributes:
-      label: Additional Information
-      description: Add any other context here
+      label: Additional Context
+      description: Add any other context or references here
