@@ -4,7 +4,7 @@
   "description": "AetherFlix - Universal Smart TV (Android TV, Tizen) & Web Streaming Platform",
   "author": {
     "name": "Hamza Boulila",
-    "email": ""
+    "email": "contact@aetherflix.app"
   },
   "license": "GPL-3.0",
   "main": "index.js",
@@ -35,7 +35,6 @@
     "@capacitor/core": "^6.2.2",
     "approve": "^0.0.12",
     "cors": "^2.8.6",
-    "crypto-js": "^4.2.0",
     "dompurify": "^3.4.17",
     "express": "^5.3.0",
     "express-rate-limit": "^8.7.1",
@@ -146,6 +145,7 @@
       ]
     },
     "linux": {
+      "maintainer": "Hamza Boulila <contact@aetherflix.app>",
       "target": [
         {
           "target": "AppImage",

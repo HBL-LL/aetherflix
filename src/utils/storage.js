@@ -1,5 +1,4 @@
 // localStorage-based persistence (works in both Vite dev and prod)
-import { encryptStorageValue, decryptStorageValue } from "./crypto";
 
 const PREFIX = "streambert_";
 
@@ -10,21 +9,22 @@ export const storage = {
     try {
       const raw = localStorage.getItem(PREFIX + key);
       if (!raw) return null;
-      const data = decryptStorageValue(raw);
       try {
-        return JSON.parse(data);
+        return JSON.parse(raw);
       } catch {
-        return data;
+        return raw;
       }
     } catch {
       return null;
     }
   },
   set(key, value) {
+    // Sensitive keys must never be stored in localStorage
+    if (SENSITIVE_KEY_PATTERN.test(key)) {
+      return;
+    }
     try {
-      const json = JSON.stringify(value);
-      const toStore = encryptStorageValue(json);
-      localStorage.setItem(PREFIX + key, toStore);
+      localStorage.setItem(PREFIX + key, JSON.stringify(value));
     } catch {}
   },
   remove(key) {
@@ -110,13 +110,10 @@ export const STORAGE_KEYS = {
   GAMEPAD_ENABLED: "gamepadEnabled",
 };
 
+const fallbackMemoryStore = new Map();
+
 export const getApiKey = () => {
-  try {
-    const raw = localStorage.getItem("streambert_apikey");
-    return raw ? decryptStorageValue(raw) : null;
-  } catch {
-    return null;
-  }
+  return fallbackMemoryStore.get("apikey") || null;
 };
 
 // ── Source failover cache ────────────────────────────────────────────────────
@@ -176,6 +173,7 @@ export function formatBytes(bytes) {
 //   "subdlApiKey" - SubDL API key
 //   "wyzieApiKey" - Wyzie API key
 
+
 export const secureStorage = {
   /** Read an encrypted/secured value. */
   async get(key) {
@@ -185,7 +183,7 @@ export const secureStorage = {
         if (val) return val;
       } catch {}
     }
-    return storage.get(`sec_${key}`);
+    return fallbackMemoryStore.get(key) || null;
   },
 
   /** Write an encrypted/secured value. Pass null/empty to delete. */
@@ -196,9 +194,9 @@ export const secureStorage = {
       } catch {}
     }
     if (value === null || value === undefined || value === "") {
-      storage.remove(`sec_${key}`);
+      fallbackMemoryStore.delete(key);
     } else {
-      storage.set(`sec_${key}`, value);
+      fallbackMemoryStore.set(key, value);
     }
   },
 };

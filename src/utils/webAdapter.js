@@ -1,8 +1,3 @@
-import {
-  encryptStorageValue as encryptSensitiveData,
-  decryptStorageValue as decryptSensitiveData,
-} from "./crypto";
-
 // Helper to resolve remote server base URL for Smart TV & mobile clients
 export function getServerBaseUrl() {
   if (typeof window === "undefined") return "";
@@ -60,6 +55,8 @@ export function initWebAdapter() {
   }
 
 
+  const secureMemoryStore = new Map();
+
   // Pre-fetch server config (e.g. TMDB key passed via Docker env)
   let serverConfig = null;
   const serverConfigPromise = fetch(`${getServerBaseUrl()}/api/config`)
@@ -67,11 +64,8 @@ export function initWebAdapter() {
     .then((cfg) => {
       serverConfig = cfg;
       if (cfg?.tmdbApiKey) {
-        // If not already in localStorage, auto-populate with server-provided key
-        if (!localStorage.getItem(STORAGE_PREFIX + "apikey")) {
-          localStorage.setItem(STORAGE_PREFIX + "apikey", encryptSensitiveData(cfg.tmdbApiKey));
-          window.dispatchEvent(new Event("streambert:apikey-ready"));
-        }
+        secureMemoryStore.set("apikey", cfg.tmdbApiKey);
+        window.dispatchEvent(new Event("streambert:apikey-ready"));
       }
       return cfg;
     })
@@ -111,10 +105,9 @@ export function initWebAdapter() {
     },
     getInstallPath: async () => null,
 
-    // Secure key storage: encrypted in localStorage for web/tv
+    // Secure key storage: in-memory for web/tv polyfill
     secureGet: async (key) => {
-      const val = localStorage.getItem(STORAGE_PREFIX + key);
-      if (val) return decryptSensitiveData(val);
+      if (secureMemoryStore.has(key)) return secureMemoryStore.get(key);
       if (key === "apikey") {
         if (!serverConfig) {
           await serverConfigPromise;
@@ -127,9 +120,9 @@ export function initWebAdapter() {
     },
     secureSet: async (key, value) => {
       if (value === null || value === undefined || value === "") {
-        localStorage.removeItem(STORAGE_PREFIX + key);
+        secureMemoryStore.delete(key);
       } else {
-        localStorage.setItem(STORAGE_PREFIX + key, encryptSensitiveData(value));
+        secureMemoryStore.set(key, value);
       }
     },
 
