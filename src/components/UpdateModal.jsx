@@ -439,13 +439,25 @@ export default function UpdateModal({
   activeDownloads = 0,
   onClose,
 }) {
-  const { latest, current, url, changelog, assets, sourceLabel } = updateInfo;
+  const {
+    latest,
+    current,
+    url,
+    changelog,
+    assets = {},
+    assetList = [],
+    sourceLabel,
+    releaseName,
+    runningMode: initialMode,
+    hasUpdate = true,
+  } = updateInfo;
 
   const [phase, setPhase] = useState("idle"); // idle | downloading | installing | done | error
-  const [format, setFormat] = useState(null); // "appimage" | "deb" | "exe" | "dmg" | null
+  const [format, setFormat] = useState(initialMode || null); // "docker" | "apk" | "wgt" | "web" | "dmg" | "exe" | etc.
   const [progress, setProgress] = useState(0);
   const [progressLabel, setProgressLabel] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [copiedDocker, setCopiedDocker] = useState(false);
   const cancelRef = useRef(false);
 
   // Detect install format on mount
@@ -453,7 +465,7 @@ export default function UpdateModal({
     if (!window.electron?.detectUpdateFormat) return;
     let mounted = true;
     window.electron.detectUpdateFormat().then((fmt) => {
-      if (mounted) setFormat(fmt);
+      if (mounted && fmt) setFormat(fmt);
     });
     return () => {
       mounted = false;
@@ -470,9 +482,15 @@ export default function UpdateModal({
     return () => window.electron.offUpdateProgress(handler);
   }, []);
 
+  const isDocker = format === "docker";
+  const isAndroid = format === "apk" || (!format && Boolean(assets?.apk));
+  const isTizen = format === "wgt" || (!format && Boolean(assets?.wgt));
+  const isWeb = format === "web";
+  const isDesktop = ["dmg", "exe", "appimage", "deb", "pacman"].includes(format);
+
   const assetUrl = format && assets?.[format];
   const canInstall =
-    format && assetUrl && activeDownloads === 0 && phase === "idle";
+    isDesktop && assetUrl && activeDownloads === 0 && phase === "idle";
 
   const handleInstall = async () => {
     if (!canInstall) return;
@@ -505,14 +523,25 @@ export default function UpdateModal({
     onClose();
   };
 
+  const copyDockerCmd = (e) => {
+    e?.stopPropagation();
+    navigator.clipboard?.writeText("docker compose pull && docker compose up -d");
+    setCopiedDocker(true);
+    setTimeout(() => setCopiedDocker(false), 2000);
+  };
+
   const formatLabel =
     {
-      appimage: "AppImage",
-      deb: ".deb package",
-      pacman: ".pacman (Arch)",
+      docker: "Docker Container",
+      apk: "Android TV / Fire TV",
+      wgt: "Samsung Smart TV (Tizen)",
+      web: "Web Platform",
+      appimage: "AppImage (Linux)",
+      deb: ".deb package (Debian/Ubuntu)",
+      pacman: ".pacman (Arch Linux)",
       exe: "Windows installer",
       dmg: "macOS installer (Universal)",
-    }[format] || "installer";
+    }[format] || (format ? String(format).toUpperCase() : "Release Package");
 
   const busy = phase === "downloading" || phase === "installing";
 
@@ -523,8 +552,9 @@ export default function UpdateModal({
         position: "fixed",
         inset: 0,
         zIndex: 6000,
-        background: "rgba(0,0,0,0.78)",
-        backdropFilter: "blur(10px)",
+        background: "rgba(0,0,0,0.85)",
+        backdropFilter: "blur(14px)",
+        WebkitBackdropFilter: "blur(14px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -537,22 +567,23 @@ export default function UpdateModal({
         style={{
           background: "var(--surface)",
           border: "1px solid var(--border)",
-          borderRadius: 14,
+          borderRadius: 16,
           width: "100%",
-          maxWidth: 560,
-          maxHeight: "85vh",
+          maxWidth: 640,
+          maxHeight: "88vh",
           display: "flex",
           flexDirection: "column",
-          boxShadow: "0 32px 80px rgba(0,0,0,0.7)",
+          boxShadow: "0 32px 80px rgba(0,0,0,0.8), 0 0 40px rgba(229,9,20,0.15)",
           overflow: "hidden",
         }}
       >
         {/* ── Header ── */}
         <div
           style={{
-            padding: "24px 28px 16px",
+            padding: "22px 28px 16px",
             borderBottom: "1px solid var(--border)",
             flexShrink: 0,
+            background: "rgba(255,255,255,0.02)",
           }}
         >
           <div
@@ -569,24 +600,42 @@ export default function UpdateModal({
                   display: "flex",
                   alignItems: "center",
                   gap: 10,
-                  marginBottom: 4,
+                  marginBottom: 6,
                 }}
               >
-                <span style={{ fontSize: 20 }}>🎉</span>
+                <span style={{ fontSize: 20 }}>
+                  {isDocker ? "🐳" : isAndroid || isTizen ? "📺" : "🚀"}
+                </span>
                 <span
                   style={{
                     fontFamily: "var(--font-display)",
                     fontSize: 22,
-                    letterSpacing: 1,
+                    letterSpacing: 0.5,
+                    color: "var(--text)",
                   }}
                 >
-                  UPDATE AVAILABLE
+                  {hasUpdate ? "UPDATE AVAILABLE" : "RELEASE DETAILS"}
+                </span>
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
+                    color: isDocker ? "#93c5fd" : isAndroid ? "#6ee7b7" : isTizen ? "#c4b5fd" : "var(--red)",
+                    background: isDocker ? "rgba(59,130,246,0.15)" : isAndroid ? "rgba(52,211,153,0.15)" : isTizen ? "rgba(192,132,252,0.15)" : "var(--red-dim)",
+                    border: `1px solid ${isDocker ? "rgba(59,130,246,0.3)" : isAndroid ? "rgba(52,211,153,0.3)" : isTizen ? "rgba(192,132,252,0.3)" : "rgba(229,9,20,0.3)"}`,
+                    borderRadius: "var(--radius-pill)",
+                    padding: "2px 10px",
+                  }}
+                >
+                  {formatLabel}
                 </span>
               </div>
               <div
                 style={{
                   fontSize: 13,
-                  color: "var(--text3)",
+                  color: "var(--text2)",
                   display: "flex",
                   alignItems: "center",
                   gap: 8,
@@ -595,10 +644,8 @@ export default function UpdateModal({
               >
                 {current && (
                   <>
-                    <span style={{ color: "var(--text3)" }}>v{current}</span>
-                    <span style={{ color: "var(--text3)", fontSize: 11 }}>
-                      →
-                    </span>
+                    <span>Current: <strong>v{current}</strong></span>
+                    <span style={{ color: "var(--text3)" }}>→</span>
                   </>
                 )}
                 <a
@@ -609,29 +656,14 @@ export default function UpdateModal({
                   }}
                   style={{
                     color: "var(--red)",
-                    fontWeight: 600,
+                    fontWeight: 700,
                     textDecoration: "none",
                     cursor: "pointer",
                   }}
                   title={`View on ${sourceLabel || "GitHub"}`}
                 >
-                  v{latest} ↗
+                  v{latest} ({releaseName || "Latest"}) ↗
                 </a>
-                is ready to install
-                {format && (
-                  <span
-                    style={{
-                      fontSize: 12,
-                      color: "var(--text3)",
-                      background: "var(--surface2)",
-                      border: "1px solid var(--border)",
-                      borderRadius: 4,
-                      padding: "1px 7px",
-                    }}
-                  >
-                    {formatLabel}
-                  </span>
-                )}
               </div>
             </div>
             <button
@@ -640,12 +672,12 @@ export default function UpdateModal({
               style={{
                 background: "transparent",
                 border: "1px solid var(--border)",
-                borderRadius: 6,
+                borderRadius: "var(--radius-sm)",
                 color: "var(--text3)",
                 cursor: busy ? "not-allowed" : "pointer",
                 fontSize: 18,
-                width: 28,
-                height: 28,
+                width: 30,
+                height: 30,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -658,8 +690,188 @@ export default function UpdateModal({
           </div>
         </div>
 
+        {/* ── Environment-Specific Quick Action Card ── */}
+        <div style={{ padding: "18px 28px 0" }}>
+          {isDocker && (
+            <div
+              style={{
+                background: "rgba(37,99,235,0.08)",
+                border: "1px solid rgba(59,130,246,0.25)",
+                borderRadius: 12,
+                padding: "14px 18px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                <strong style={{ fontSize: 13, color: "#93c5fd", display: "flex", alignItems: "center", gap: 6 }}>
+                  <span>🐳</span> Update Docker Container:
+                </strong>
+                <button
+                  onClick={copyDockerCmd}
+                  className="btn btn-ghost"
+                  style={{
+                    padding: "4px 12px",
+                    fontSize: 12,
+                    background: copiedDocker ? "#10b981" : "rgba(255,255,255,0.08)",
+                    color: "#fff",
+                    borderColor: copiedDocker ? "#10b981" : "rgba(255,255,255,0.15)",
+                  }}
+                >
+                  {copiedDocker ? "✓ Copied!" : "📋 Copy Command"}
+                </button>
+              </div>
+              <code
+                style={{
+                  display: "block",
+                  background: "rgba(0,0,0,0.5)",
+                  padding: "10px 14px",
+                  borderRadius: 8,
+                  fontSize: 13,
+                  color: "#e2e8f0",
+                  fontFamily: "monospace",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                }}
+              >
+                docker compose pull && docker compose up -d
+              </code>
+              <div style={{ fontSize: 12, color: "var(--text3)", marginTop: 8 }}>
+                Or rebuild locally with: <code>docker compose up --build -d</code>
+              </div>
+            </div>
+          )}
+
+          {isAndroid && (
+            <div
+              style={{
+                background: "rgba(16,185,129,0.08)",
+                border: "1px solid rgba(16,185,129,0.25)",
+                borderRadius: 12,
+                padding: "14px 18px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                <div>
+                  <strong style={{ fontSize: 13, color: "#6ee7b7", display: "block" }}>
+                    📺 Android TV / Fire TV / Google TV APK
+                  </strong>
+                  <span style={{ fontSize: 12, color: "var(--text2)" }}>
+                    Download the signed release APK directly for TV sideloading.
+                  </span>
+                </div>
+                {assets?.apk && (
+                  <a
+                    href={assets.apk}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary"
+                    style={{ textDecoration: "none", flexShrink: 0 }}
+                  >
+                    ⬇ Download APK
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+
+          {isTizen && (
+            <div
+              style={{
+                background: "rgba(139,92,246,0.08)",
+                border: "1px solid rgba(139,92,246,0.25)",
+                borderRadius: 12,
+                padding: "14px 18px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                <div>
+                  <strong style={{ fontSize: 13, color: "#c4b5fd", display: "block" }}>
+                    📺 Samsung Smart TV (Tizen OS Widget)
+                  </strong>
+                  <span style={{ fontSize: 12, color: "var(--text2)" }}>
+                    Sideload to Samsung Smart Hub via <code>sdb install AetherFlix.wgt</code>
+                  </span>
+                </div>
+                {assets?.wgt && (
+                  <a
+                    href={assets.wgt}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary"
+                    style={{ textDecoration: "none", flexShrink: 0 }}
+                  >
+                    ⬇ Download .wgt
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── Downloadable Packages from Release ── */}
+        {assetList && assetList.length > 0 && (
+          <div style={{ padding: "16px 28px 0" }}>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: 1.2,
+                color: "var(--text3)",
+                textTransform: "uppercase",
+                marginBottom: 8,
+              }}
+            >
+              Release Packages ({assetList.length})
+            </div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))",
+                gap: 8,
+              }}
+            >
+              {assetList.map((ast) => (
+                <a
+                  key={ast.name}
+                  href={ast.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "8px 12px",
+                    background: "var(--surface2)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "var(--radius-sm)",
+                    color: "var(--text)",
+                    textDecoration: "none",
+                    fontSize: 13,
+                    transition: "border-color 0.2s, background 0.2s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "var(--red)";
+                    e.currentTarget.style.background = "var(--surface3)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "var(--border)";
+                    e.currentTarget.style.background = "var(--surface2)";
+                  }}
+                >
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    📦 {ast.name}
+                  </span>
+                  {ast.sizeMb && (
+                    <span style={{ fontSize: 11, color: "var(--text3)", marginLeft: 6 }}>
+                      {ast.sizeMb}MB
+                    </span>
+                  )}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* ── Changelog ── */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "20px 28px" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "18px 28px" }}>
           {changelog ? (
             <>
               <div
@@ -672,7 +884,7 @@ export default function UpdateModal({
                   marginBottom: 12,
                 }}
               >
-                What's New
+                What's New in this Release
               </div>
               <div>{renderChangelog(changelog)}</div>
             </>
@@ -684,7 +896,7 @@ export default function UpdateModal({
                 fontStyle: "italic",
               }}
             >
-              No changelog available.
+              No changelog provided for this release.
             </div>
           )}
         </div>
@@ -695,6 +907,7 @@ export default function UpdateModal({
             padding: "16px 28px",
             borderTop: "1px solid var(--border)",
             flexShrink: 0,
+            background: "rgba(0,0,0,0.2)",
           }}
         >
           {/* Active downloads warning */}
@@ -711,26 +924,6 @@ export default function UpdateModal({
             >
               ⚠ {activeDownloads} download{activeDownloads > 1 ? "s" : ""}{" "}
               running, finish or cancel them before updating.
-            </div>
-          )}
-
-          {/* No format detected warning */}
-          {!format && phase === "idle" && (
-            <div
-              style={{ fontSize: 12, color: "var(--text3)", marginBottom: 12 }}
-            >
-              Could not detect install format. Use the{" "}
-              <a
-                href={url}
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.electron?.openExternal(url);
-                }}
-                style={{ color: "var(--red)", cursor: "pointer" }}
-              >
-                {sourceLabel || "GitHub"} releases page
-              </a>{" "}
-              to download manually.
             </div>
           )}
 
@@ -840,25 +1033,48 @@ export default function UpdateModal({
                     cursor: "pointer",
                   }}
                 >
-                  {sourceLabel || "GitHub"} ↗
+                  View on {sourceLabel || "GitHub"} ↗
                 </a>
-                <button
-                  className="btn"
-                  disabled={!canInstall}
-                  onClick={handleInstall}
-                  style={{
-                    background: canInstall
-                      ? "var(--red)"
-                      : "rgba(229,9,20,0.3)",
-                    color: "#fff",
-                    border: "none",
-                    fontWeight: 600,
-                    opacity: canInstall ? 1 : 0.6,
-                    cursor: canInstall ? "pointer" : "not-allowed",
-                  }}
-                >
-                  Install Update
-                </button>
+                {canInstall && (
+                  <button
+                    className="btn btn-primary"
+                    onClick={handleInstall}
+                    style={{ fontWeight: 600 }}
+                  >
+                    Install Update
+                  </button>
+                )}
+                {isAndroid && assets?.apk && (
+                  <a
+                    href={assets.apk}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary"
+                    style={{ textDecoration: "none", fontWeight: 600 }}
+                  >
+                    ⬇ Download APK
+                  </a>
+                )}
+                {isTizen && assets?.wgt && (
+                  <a
+                    href={assets.wgt}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary"
+                    style={{ textDecoration: "none", fontWeight: 600 }}
+                  >
+                    ⬇ Download .wgt
+                  </a>
+                )}
+                {isDocker && (
+                  <button
+                    className="btn btn-primary"
+                    onClick={copyDockerCmd}
+                    style={{ fontWeight: 600 }}
+                  >
+                    {copiedDocker ? "✓ Copied Docker Command!" : "📋 Copy Docker Command"}
+                  </button>
+                )}
               </>
             )}
           </div>

@@ -262,7 +262,24 @@ function SideBtn({ active, onClick, icon, label, badge }) {
       className={`sidebar-btn ${active ? "active" : ""}`}
       onClick={onClick}
       style={{ position: "relative" }}
+      aria-label={label}
     >
+      {active && (
+        <span
+          className="sidebar-active-indicator"
+          style={{
+            position: "absolute",
+            left: -8,
+            top: "50%",
+            transform: "translateY(-50%)",
+            width: 3.5,
+            height: 22,
+            borderRadius: "0 3px 3px 0",
+            background: "var(--red)",
+            boxShadow: "0 0 10px var(--red)",
+          }}
+        />
+      )}
       {icon}
       <span className="tooltip">{label}</span>
       {badge && (

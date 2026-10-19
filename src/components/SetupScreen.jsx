@@ -125,10 +125,11 @@ export default function SetupScreen({ onSave, onSkip }) {
         <div className="apikey-logo">
           <StreambertLogo />
         </div>
-        <div className="apikey-title">STREAMBERT</div>
+        <div className="apikey-title">AETHERFLIX</div>
+        <div className="apikey-tagline">CINEMA-GRADE STREAMING EXPERIENCE</div>
         <p className="apikey-sub">
           Enter your <strong>free</strong> TMDB{" "}
-          <strong>Read Access Token</strong> to get started.
+          <strong>Read Access Token</strong> to unlock movies, TV shows, and anime.
           <br />
           Go to{" "}
           <ExternalLink
@@ -137,14 +138,13 @@ export default function SetupScreen({ onSave, onSkip }) {
           >
             themoviedb.org → Settings → API
           </ExternalLink>{" "}
-          and copy the <em>API Read Access Token</em> (the long JWT, not the
-          shorter API Key below).
+          and copy the <em>API Read Access Token</em> (the long JWT).
           <br />
           <ExternalLink
             className="apikey-link"
-            href="https://github.com/truelockmc/streambert/blob/main/tmdb-tutorial.md"
+            href="https://github.com/Hamza-Boulila/aetherflix/blob/main/tmdb-tutorial.md"
           >
-            Step-by-step guide on how to get that Token
+            Step-by-step guide to get your free token
           </ExternalLink>
         </p>
         <input
@@ -160,9 +160,6 @@ export default function SetupScreen({ onSave, onSkip }) {
           disabled={checking}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          style={{
-            borderColor: error ? "#f44336" : focused ? "var(--red)" : undefined,
-          }}
         />
 
         {error && (
@@ -177,7 +174,7 @@ export default function SetupScreen({ onSave, onSkip }) {
           style={{
             width: "100%",
             justifyContent: "center",
-            padding: "13px",
+            padding: "14px",
             marginTop: error ? 0 : undefined,
           }}
           onClick={handleSubmit}
@@ -185,11 +182,11 @@ export default function SetupScreen({ onSave, onSkip }) {
         >
           {checking ? (
             <>
-              <span className="apikey-spinner" /> Checking…
+              <span className="apikey-spinner" /> Checking Access…
             </>
           ) : (
             <>
-              <PlayIcon /> Let's go
+              <PlayIcon /> Enter Screening Room
             </>
           )}
         </button>

@@ -171,7 +171,15 @@ export default function SearchModal({ apiKey, onSelect, onClose, offline }) {
               <div
                 key={r.id}
                 className="search-result"
+                tabIndex={0}
+                role="button"
                 onClick={() => handleSelect(r)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleSelect(r);
+                  }
+                }}
               >
                 <img
                   src={

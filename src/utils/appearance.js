@@ -75,14 +75,14 @@ export const THEME_PRESETS = [
     label: "Dark",
     description: "Default dark theme",
     vars: {
-      "--bg": "#0a0a0a",
-      "--surface": "#111111",
-      "--surface2": "#1a1a1a",
-      "--surface3": "#222222",
-      "--border": "#2a2a2a",
-      "--text": "#f0f0f0",
-      "--text2": "#c0c0c0",
-      "--text3": "#909090",
+      "--bg": "#070709",
+      "--surface": "#101014",
+      "--surface2": "#16161c",
+      "--surface3": "#1f1f27",
+      "--border": "rgba(255, 255, 255, 0.08)",
+      "--text": "#f7f7f9",
+      "--text2": "#b8b8c6",
+      "--text3": "#7e7e8e",
     },
   },
   {
@@ -155,14 +155,14 @@ export const THEME_PRESETS = [
 
 /** Default custom theme vars (used when user first opens the custom editor). */
 export const DEFAULT_CUSTOM_VARS = {
-  "--bg": "#0a0a0a",
-  "--surface": "#111111",
-  "--surface2": "#1a1a1a",
-  "--surface3": "#222222",
-  "--border": "#2a2a2a",
-  "--text": "#f0f0f0",
-  "--text2": "#c0c0c0",
-  "--text3": "#909090",
+  "--bg": "#070709",
+  "--surface": "#101014",
+  "--surface2": "#16161c",
+  "--surface3": "#1f1f27",
+  "--border": "rgba(255, 255, 255, 0.08)",
+  "--text": "#f7f7f9",
+  "--text2": "#b8b8c6",
+  "--text3": "#7e7e8e",
 };
 
 /**

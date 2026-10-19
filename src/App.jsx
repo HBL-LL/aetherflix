@@ -143,7 +143,8 @@ export default function App() {
 
   // ── Startup update check ─────────────────────────────────────────────────
   useEffect(() => {
-    if (!storage.get("autoCheckUpdates")) return;
+    const autoPref = storage.get(STORAGE_KEYS.AUTO_CHECK_UPDATES);
+    if (autoPref === 0 || autoPref === false) return;
     const source =
       storage.get(STORAGE_KEYS.UPDATE_SOURCE) || DEFAULT_UPDATE_SOURCE;
     checkForUpdatesWithFallback(source)
@@ -341,13 +342,18 @@ export default function App() {
   // ── Load API key from secure storage on startup ──
   useEffect(() => {
     let mounted = true;
-    secureStorage.get("apikey").then((val) => {
-      if (!mounted) return;
-      setApiKey(val || null);
-      setApiKeyLoaded(true);
-    });
+    const loadApiKey = () => {
+      secureStorage.get("apikey").then((val) => {
+        if (!mounted) return;
+        if (val) setApiKey(val);
+        setApiKeyLoaded(true);
+      });
+    };
+    loadApiKey();
+    window.addEventListener("streambert:apikey-ready", loadApiKey);
     return () => {
       mounted = false;
+      window.removeEventListener("streambert:apikey-ready", loadApiKey);
     };
   }, []);
 
@@ -1205,7 +1211,7 @@ export default function App() {
               color: "#fff",
             }}
           >
-            <span>🎉 Streambert v{updateBanner.latest} is available!</span>
+            <span>🎉 AetherFlix v{updateBanner.latest} is available!</span>
             <button
               onClick={() => setShowUpdateModal(true)}
               style={{
@@ -1219,7 +1225,7 @@ export default function App() {
                 cursor: "pointer",
               }}
             >
-              Install Update
+              View Update
             </button>
             <button
               onClick={() => setUpdateBanner(null)}

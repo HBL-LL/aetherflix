@@ -86,7 +86,17 @@ const CarouselSlot = memo(function CarouselSlot({
         cursor: "pointer",
         pointerEvents: "auto",
       }}
+      tabIndex={0}
+      role="button"
+      aria-label={`${title} (${year || "Featured"})`}
       onClick={isCenter ? onSelect : onFocus}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          if (isCenter) onSelect();
+          else onFocus();
+        }
+      }}
     >
       <div className="carousel-poster-wrap">
         {poster ? (

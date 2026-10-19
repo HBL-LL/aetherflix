@@ -56,7 +56,7 @@ export function initWebAdapter() {
 
   // Pre-fetch server config (e.g. TMDB key passed via Docker env)
   let serverConfig = null;
-  fetch(`${getServerBaseUrl()}/api/config`)
+  const serverConfigPromise = fetch(`${getServerBaseUrl()}/api/config`)
     .then((r) => r.json())
     .then((cfg) => {
       serverConfig = cfg;
@@ -67,25 +67,55 @@ export function initWebAdapter() {
           window.dispatchEvent(new Event("streambert:apikey-ready"));
         }
       }
+      return cfg;
     })
-    .catch(() => {
-      // Non-critical if running in standalone Vite dev without backend
-    });
+    .catch(() => null);
 
   window.electron = {
     _isWebPolyfill: true,
 
     // Platform & version info
-    getPlatform: async () => "web",
-    getAppVersion: async () => (serverConfig?.version ? `${serverConfig.version} (Web)` : "2.6.0 (Web)"),
+    getPlatform: async () => {
+      if (typeof window !== "undefined") {
+        if (window.tizen || /tizen/i.test(navigator?.userAgent || "")) return "tizen";
+        if (window.Capacitor || /android/i.test(navigator?.userAgent || "")) return "android";
+      }
+      if (!serverConfig) await serverConfigPromise;
+      if (serverConfig?.docker) return "docker";
+      return "web";
+    },
+    getAppVersion: async () => {
+      if (!serverConfig) await serverConfigPromise;
+      const ver = serverConfig?.version || "1.0.0";
+      if (typeof window !== "undefined") {
+        if (window.tizen || /tizen/i.test(navigator?.userAgent || "")) return `${ver} (Tizen TV)`;
+        if (window.Capacitor || /android/i.test(navigator?.userAgent || "")) return `${ver} (Android TV)`;
+      }
+      if (serverConfig?.docker) return `${ver} (Docker)`;
+      return `${ver} (Web)`;
+    },
+    getRunningMode: async () => {
+      if (typeof window !== "undefined") {
+        if (window.tizen || /tizen/i.test(navigator?.userAgent || "")) return "tizen";
+        if (window.Capacitor || /android/i.test(navigator?.userAgent || "")) return "android";
+      }
+      if (!serverConfig) await serverConfigPromise;
+      if (serverConfig?.docker) return "docker";
+      return "web";
+    },
     getInstallPath: async () => null,
 
     // Secure key storage: falls back cleanly to localStorage
     secureGet: async (key) => {
       const val = localStorage.getItem(STORAGE_PREFIX + key);
       if (val) return val;
-      if (key === "apikey" && serverConfig?.tmdbApiKey) {
-        return serverConfig.tmdbApiKey;
+      if (key === "apikey") {
+        if (!serverConfig) {
+          await serverConfigPromise;
+        }
+        if (serverConfig?.tmdbApiKey) {
+          return serverConfig.tmdbApiKey;
+        }
       }
       return null;
     },
@@ -356,7 +386,15 @@ export function initWebAdapter() {
     offWebviewLeaveFullscreen: (cb) => removeListener("webview-leave-fullscreen", cb),
 
     // Updater stubs
-    detectUpdateFormat: async () => null,
+    detectUpdateFormat: async () => {
+      if (typeof window !== "undefined") {
+        if (window.tizen || /tizen/i.test(navigator?.userAgent || "")) return "wgt";
+        if (window.Capacitor || /android/i.test(navigator?.userAgent || "")) return "apk";
+      }
+      if (!serverConfig) await serverConfigPromise;
+      if (serverConfig?.docker) return "docker";
+      return "web";
+    },
     downloadAndInstallUpdate: async () => ({ ok: false }),
     cancelUpdate: () => {},
     onUpdateProgress: (cb) => addListener("update-progress", cb),

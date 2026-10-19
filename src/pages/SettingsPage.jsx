@@ -23,6 +23,7 @@ import {
   checkForUpdatesWithFallback,
   UPDATE_SOURCES,
   DEFAULT_UPDATE_SOURCE,
+  GITHUB_REPO,
 } from "../utils/updates";
 import {
   HOME_ROWS,
@@ -226,7 +227,7 @@ function ResetConfirmDialog({ onConfirm, onCancel }) {
             marginBottom: 10,
           }}
         >
-          RESET STREAMBERT?
+          RESET AETHERFLIX?
         </div>
         <div
           style={{
@@ -734,7 +735,7 @@ function VersionSection() {
               padding: "4px 12px",
             }}
           >
-            v{currentVersion}
+            {currentVersion?.startsWith("v") ? currentVersion : `v${currentVersion}`}
           </code>
         </div>
 
@@ -747,36 +748,62 @@ function VersionSection() {
           {checking ? "Checking…" : "Check for Updates"}
         </button>
 
-        {/* Update source toggle */}
-        <div
-          style={{
-            display: "inline-flex",
-            border: "1px solid var(--border)",
-            borderRadius: 8,
-            overflow: "hidden",
-          }}
-        >
-          {Object.values(UPDATE_SOURCES).map((src) => (
-            <button
-              key={src.id}
-              onClick={() => changeSource(src.id)}
-              disabled={checking}
-              title={`Check for updates via ${src.label}`}
-              style={{
-                border: "none",
-                padding: "6px 12px",
-                fontSize: 12,
-                fontWeight: 600,
-                cursor: checking ? "not-allowed" : "pointer",
-                background:
-                  updateSource === src.id ? "var(--red)" : "var(--surface2)",
-                color: updateSource === src.id ? "#fff" : "var(--text3)",
-              }}
-            >
-              {src.label}
-            </button>
-          ))}
-        </div>
+        {/* Update source toggle / GitHub release link */}
+        {Object.keys(UPDATE_SOURCES).length > 1 ? (
+          <div
+            style={{
+              display: "inline-flex",
+              border: "1px solid var(--border)",
+              borderRadius: 8,
+              overflow: "hidden",
+            }}
+          >
+            {Object.values(UPDATE_SOURCES).map((src) => (
+              <button
+                key={src.id}
+                onClick={() => changeSource(src.id)}
+                disabled={checking}
+                title={`Check for updates via ${src.label}`}
+                style={{
+                  border: "none",
+                  padding: "6px 12px",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: checking ? "not-allowed" : "pointer",
+                  background:
+                    updateSource === src.id ? "var(--red)" : "var(--surface2)",
+                  color: updateSource === src.id ? "#fff" : "var(--text3)",
+                }}
+              >
+                {src.label}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <a
+            href={`https://github.com/${GITHUB_REPO}/releases`}
+            onClick={(e) => {
+              e.preventDefault();
+              window.electron?.openExternal(`https://github.com/${GITHUB_REPO}/releases`);
+            }}
+            className="btn btn-ghost"
+            style={{
+              fontSize: 12,
+              padding: "6px 12px",
+              textDecoration: "none",
+              color: "var(--text2)",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+            title="Browse all releases on GitHub"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            GitHub Releases ↗
+          </a>
+        )}
 
         {result && !result.error && result.hasUpdate && (
           <button
@@ -785,24 +812,24 @@ function VersionSection() {
               display: "inline-flex",
               alignItems: "center",
               gap: 6,
-              background: "rgba(229,9,20,0.12)",
-              border: "1px solid rgba(229,9,20,0.4)",
+              background: "rgba(229,9,20,0.14)",
+              border: "1px solid rgba(229,9,20,0.45)",
               color: "var(--red)",
               borderRadius: 8,
-              padding: "6px 14px",
+              padding: "7px 16px",
               fontSize: 13,
-              fontWeight: 600,
+              fontWeight: 700,
               cursor: "pointer",
-              transition: "background 0.2s",
+              transition: "all 0.2s",
             }}
             onMouseEnter={(e) =>
-              (e.currentTarget.style.background = "rgba(229,9,20,0.22)")
+              (e.currentTarget.style.background = "rgba(229,9,20,0.25)")
             }
             onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "rgba(229,9,20,0.12)")
+              (e.currentTarget.style.background = "rgba(229,9,20,0.14)")
             }
           >
-            🎉 v{result.latest} available. Install Update
+            🎉 v{result.latest} available — View & Install Update
           </button>
         )}
 
@@ -814,9 +841,18 @@ function VersionSection() {
         )}
 
         {result && !result.error && !result.hasUpdate && (
-          <span style={{ fontSize: 13, color: "#48c774", fontWeight: 500 }}>
-            ✓ You're up to date
-          </span>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 13, color: "#48c774", fontWeight: 600 }}>
+              ✓ You're on the latest version
+            </span>
+            <button
+              className="btn btn-ghost"
+              onClick={() => setShowUpdateModal(true)}
+              style={{ padding: "5px 12px", fontSize: 12, borderRadius: 6 }}
+            >
+              📦 View Release Packages (v{result.latest})
+            </button>
+          </div>
         )}
 
         {result?.error && (
@@ -826,7 +862,7 @@ function VersionSection() {
         )}
       </div>
 
-      {showUpdateModal && result?.hasUpdate && (
+      {showUpdateModal && result && (
         <UpdateModal
           updateInfo={result}
           onClose={() => setShowUpdateModal(false)}
@@ -1944,7 +1980,7 @@ function StartPageSection() {
           lineHeight: 1.6,
         }}
       >
-        Choose which page opens when you launch Streambert.
+        Choose which page opens when you launch AetherFlix.
       </div>
       <div
         style={{
@@ -2578,7 +2614,7 @@ function DiscordRpcSection() {
         />
         <ToggleRow
           label="Show cover art"
-          description="Uses the movie/show poster as the large image. When off, only the Streambert icon is shown."
+          description="Uses the movie/show poster as the large image. When off, only the AetherFlix icon is shown."
           value={showCover}
           onChange={setShowCover}
           disabled={!enabled}
@@ -2592,7 +2628,7 @@ function DiscordRpcSection() {
         />
         <ToggleRow
           label="Show GitHub button"
-          description="Adds a button linking to the Streambert GitHub repository."
+          description="Adds a button linking to the AetherFlix GitHub repository."
           value={showButton}
           onChange={setShowButton}
           disabled={!enabled}
@@ -3713,7 +3749,7 @@ export default function SettingsPage({
       {showDeleteDlConfirm && (
         <ConfirmDialog
           title="DELETE ALL DOWNLOADS?"
-          description="This will permanently delete all video files downloaded through Streambert and remove them from the download list."
+          description="This will permanently delete all video files downloaded through AetherFlix and remove them from the download list."
           confirmLabel="Yes, Delete All"
           onConfirm={async () => {
             setShowDeleteDlConfirm(false);
@@ -3755,7 +3791,7 @@ export default function SettingsPage({
           SETTINGS
         </div>
         <div style={{ color: "var(--text3)", fontSize: 14, marginBottom: 48 }}>
-          App configuration for Streambert
+          App configuration for AetherFlix
         </div>
 
         {/* ══════════════════════════════════════════════════════════════════ */}
@@ -4367,7 +4403,7 @@ export default function SettingsPage({
               }}
             >
               Downloaded videos will be saved here. Make sure the folder exists
-              and Streambert has write access to it.
+              and AetherFlix has write access to it.
             </div>
             <div
               style={{
@@ -4487,7 +4523,7 @@ export default function SettingsPage({
             <div style={{ padding: "22px 24px" }}>
               <CleanRow
                 title="Install Location"
-                description="Opens the folder where Streambert is installed."
+                description="Opens the folder where AetherFlix is installed."
                 buttonLabel="Open Folder"
                 onAction={async () => {
                   const p = await window.electron?.getInstallPath?.();
@@ -4533,7 +4569,7 @@ export default function SettingsPage({
             <div style={{ padding: "22px 24px" }}>
               <CleanRow
                 title="Delete All Downloads"
-                description="Permanently deletes all video files that were downloaded through Streambert and removes them from the download list. Only files downloaded through the app will be deleted, nothing else in your folder is touched."
+                description="Permanently deletes all video files that were downloaded through AetherFlix and removes them from the download list. Only files downloaded through the app will be deleted, nothing else in your folder is touched."
                 buttonLabel="Delete All"
                 onAction={() =>
                   new Promise((resolve) => {
@@ -4599,7 +4635,7 @@ export default function SettingsPage({
                       lineHeight: 1.6,
                     }}
                   >
-                    Completely resets Streambert to factory defaults, clears all
+                    Completely resets AetherFlix to factory defaults, clears all
                     settings, API Token, saved library, watch history/progress,
                     and all cached data. Your downloaded video files will not be
                     touched.

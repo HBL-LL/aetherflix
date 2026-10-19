@@ -39,12 +39,18 @@ const HOST = "0.0.0.0";
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 
+let appVersion = "1.0.0";
+try {
+  const pkg = require("./package.json");
+  if (pkg?.version) appVersion = pkg.version;
+} catch {}
+
 // ── Healthcheck & Server Status ──────────────────────────────────────────────
 app.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
     app: "AetherFlix",
-    version: "2.6.0",
+    version: appVersion,
     uptime: Math.floor(process.uptime()),
     timestamp: new Date().toISOString(),
   });
@@ -53,11 +59,12 @@ app.get("/api/health", (req, res) => {
 // ── Server Config & Pre-seeded API Keys ───────────────────────────────────────
 app.get("/api/config", (req, res) => {
   const tmdbKey = process.env.TMDB_API_KEY || process.env.TMDB_READ_ACCESS_TOKEN || null;
+  const isDocker = Boolean(process.env.DOCKER_CONTAINER || process.env.CONTAINER || fs.existsSync("/.dockerenv"));
   res.json({
     app: "AetherFlix",
-    version: "2.6.0",
-    platform: "web",
-    docker: Boolean(process.env.DOCKER_CONTAINER || process.env.CONTAINER || fs.existsSync("/.dockerenv")),
+    version: appVersion,
+    platform: isDocker ? "docker" : "web",
+    docker: isDocker,
     tmdbApiKey: tmdbKey,
   });
 });
@@ -129,11 +136,23 @@ if (fs.existsSync(distPath)) {
     express.static(distPath, {
       maxAge: "1d",
       index: false,
+      setHeaders: (res, filePath) => {
+        if (filePath.endsWith("index.html")) {
+          res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+          res.setHeader("Pragma", "no-cache");
+          res.setHeader("Expires", "0");
+        } else if (filePath.includes("/assets/")) {
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        }
+      },
     }),
   );
 
-  // SPA fallback for client-side routing
+  // SPA fallback for client-side routing - always fresh
   app.use((req, res) => {
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
     res.sendFile(path.join(distPath, "index.html"));
   });
 } else {

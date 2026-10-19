@@ -11,3 +11,8 @@ download_config.ini
 .env.local
 .DS_Store
 android/
+.agents/
+.agent/
+.claude/
+.impeccable/
+.codex/
