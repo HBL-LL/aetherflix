@@ -3,7 +3,9 @@
 //
 // Supports multiple release sources (GitHub + Codeberg).
 
-export const GITHUB_REPO = "Hamza-Boulila/aetherflix";
+import { version as BUILD_VERSION } from "../../package.json";
+
+export const GITHUB_REPO = "HBL-LL/aetherflix";
 
 // ── Source registry ───────────────────────────────────────────────────────────
 // Each entry describes where to fetch from and how to build the
@@ -46,7 +48,7 @@ async function getCurrentVersion() {
   if (typeof window !== "undefined" && window.electron?.getAppVersion) {
     return window.electron.getAppVersion();
   }
-  return "1.0.0";
+  return BUILD_VERSION;
 }
 
 /**

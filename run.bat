@@ -1,11 +1,11 @@
 @echo off
 setlocal enabledelayedexpansion
-title Streambert Web Launcher
+title AetherFlix Web Launcher
 cd /d "%~dp0"
 
 echo.
 echo   ==============================================================
-echo                STREAMBERT WEB - ONE-CLICK LAUNCHER
+echo                AETHERFLIX WEB - ONE-CLICK LAUNCHER
 echo   ==============================================================
 echo.
 
@@ -22,7 +22,7 @@ if %ERRORLEVEL% EQU 0 (
             if exist .env.example copy .env.example .env >nul
             docker compose up -d --build
         )
-        echo [OK] Opening Streambert in your browser...
+        echo [OK] Opening AetherFlix in your browser...
         timeout /t 3 /nobreak >nul
         start http://localhost:3000
         goto done
@@ -54,5 +54,5 @@ call npm start
 
 :done
 echo.
-echo Streambert is running at http://localhost:3000
+echo AetherFlix is running at http://localhost:3000
 pause

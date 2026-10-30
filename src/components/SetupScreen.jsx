@@ -144,7 +144,7 @@ export default function SetupScreen({ onSave, onSkip }) {
           <br />
           <ExternalLink
             className="apikey-link"
-            href="https://github.com/Hamza-Boulila/aetherflix/blob/main/tmdb-tutorial.md"
+            href="https://github.com/HBL-LL/aetherflix/blob/main/tmdb-tutorial.md"
           >
             Step-by-step guide to get your free token
           </ExternalLink>

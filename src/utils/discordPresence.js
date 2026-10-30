@@ -6,8 +6,8 @@ import { storage, STORAGE_KEYS, isElectron } from "./storage";
 
 // Small badge shown as the "small_image" next to the cover.
 const APP_ICON_URL =
-  "https://raw.githubusercontent.com/Hamza-Boulila/aetherflix/main/public/icon.png";
-const GITHUB_URL = "https://github.com/Hamza-Boulila/aetherflix";
+  "https://raw.githubusercontent.com/HBL-LL/aetherflix/main/public/icon.png";
+const GITHUB_URL = "https://github.com/HBL-LL/aetherflix";
 
 export function readDiscordRpcSettings() {
   return {

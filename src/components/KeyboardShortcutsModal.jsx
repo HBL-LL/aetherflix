@@ -243,11 +243,11 @@ export default function KeyboardShortcutsModal({ onClose }) {
             </div>
           </div>
           <a
-            href="https://github.com/Hamza-Boulila/aetherflix"
+            href="https://github.com/HBL-LL/aetherflix"
             onClick={(e) => {
               e.preventDefault();
               window.electron?.openExternal(
-                "https://github.com/Hamza-Boulila/aetherflix",
+                "https://github.com/HBL-LL/aetherflix",
               );
             }}
             style={{

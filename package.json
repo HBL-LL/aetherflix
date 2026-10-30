@@ -1,6 +1,6 @@
 {
   "name": "aetherflix",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "AetherFlix - Universal Smart TV (Android TV, Tizen) & Web Streaming Platform",
   "author": {
     "name": "Hamza Boulila",
@@ -109,7 +109,7 @@
       "createStartMenuShortcut": true,
       "selectPerMachineByDefault": false,
       "license": "LICENSE",
-      "uninstallDisplayName": "Uninstall Streambert",
+      "uninstallDisplayName": "Uninstall AetherFlix",
       "installerSidebar": "public/installer-sidebar.bmp"
     },
     "win": {
@@ -177,7 +177,7 @@
       "desktop": {
         "entry": {
           "Name": "Streambert",
-          "Comment": "Streambert Desktop App",
+          "Comment": "AetherFlix Desktop App",
           "Categories": "AudioVideo;Video;Player;Multimedia;Internet;",
           "Icon": "streambert",
           "StartupWMClass": "Streambert"

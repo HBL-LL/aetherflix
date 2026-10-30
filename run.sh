@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Streambert Universal One-Click Launcher
+# AetherFlix Universal One-Click Launcher
 # Supports: macOS, Linux, and Windows (via WSL / Git Bash / MSYS)
 # ==============================================================================
 
@@ -19,7 +19,7 @@ RESET="\033[0m"
 
 echo -e "${CYAN}${BOLD}"
 echo "  ╔══════════════════════════════════════════════════════════════╗"
-echo "  ║             STREAMBERT WEB — ONE-CLICK LAUNCHER              ║"
+echo "  ║             AETHERFLIX WEB — ONE-CLICK LAUNCHER              ║"
 echo "  ║      Self-Hosted Streaming for Movies, TV Shows & Anime      ║"
 echo "  ╚══════════════════════════════════════════════════════════════╝"
 echo -e "${RESET}"
@@ -82,14 +82,14 @@ fi
 # 3. Launch via Docker or Node fallback
 if [ "$DOCKER_AVAILABLE" = true ] && [ -n "$COMPOSE_CMD" ]; then
   echo -e "${GREEN}✔ Docker is running.${RESET}"
-  echo -e "${CYAN}🚀 Starting Streambert container...${RESET}"
+  echo -e "${CYAN}🚀 Starting AetherFlix container...${RESET}"
 
   $COMPOSE_CMD $ENV_FLAG up -d --build
 
   PORT=3000
   APP_URL="http://localhost:${PORT}"
 
-  echo -e "${CYAN}⏳ Waiting for Streambert to be ready...${RESET}"
+  echo -e "${CYAN}⏳ Waiting for AetherFlix to be ready...${RESET}"
   READY=false
   for i in {1..30}; do
     if curl -s "http://127.0.0.1:${PORT}/api/health" | grep -q '"status":"ok"'; then
@@ -100,7 +100,7 @@ if [ "$DOCKER_AVAILABLE" = true ] && [ -n "$COMPOSE_CMD" ]; then
   done
 
   if [ "$READY" = true ]; then
-    echo -e "\n${GREEN}${BOLD}✔ Streambert is ready and running!${RESET}"
+    echo -e "\n${GREEN}${BOLD}✔ AetherFlix is ready and running!${RESET}"
     echo -e "${BOLD}🌐 Open in browser: ${CYAN}${APP_URL}${RESET}\n"
     open_browser "$APP_URL"
   else
@@ -122,7 +122,7 @@ else
 
   if ! command -v node >/dev/null 2>&1; then
     echo -e "${RED}✖ Error: Neither Docker nor Node.js was found on your system.${RESET}"
-    echo "Please install Docker Desktop (https://www.docker.com/) or Node.js (https://nodejs.org/) to run Streambert."
+    echo "Please install Docker Desktop (https://www.docker.com/) or Node.js (https://nodejs.org/) to run AetherFlix."
     read -p "Press Enter to exit..."
     exit 1
   fi
