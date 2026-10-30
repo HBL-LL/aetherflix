@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { AetherFlixWordmark } from "./Icons";
 
 // Only rendered on Windows (platform === 'win32')
 // Provides minimize / maximize / close buttons and a draggable title area.
@@ -55,18 +56,13 @@ export default function WindowTitlebar() {
       <div
         style={{
           paddingLeft: 12, // sit over the sidebar
-          fontSize: 12,
-          fontWeight: 700,
-          letterSpacing: 2,
+          fontSize: 10,
           color: "var(--text3)",
-          fontFamily: "var(--font-display)",
           flexGrow: 1,
           overflow: "hidden",
-          whiteSpace: "nowrap",
-          textOverflow: "ellipsis",
         }}
       >
-        STREAMBERT
+        <AetherFlixWordmark />
       </div>
 
       {/* Window control buttons, NOT draggable */}
@@ -139,7 +135,7 @@ export default function WindowTitlebar() {
         {/* Close */}
         <TitlebarBtn
           onClick={close}
-          hoverBg="rgba(229,9,20,0.85)"
+          hoverBg="rgba(221,51,36,0.85)"
           title="Close"
         >
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none">

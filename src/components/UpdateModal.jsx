@@ -573,7 +573,7 @@ export default function UpdateModal({
           maxHeight: "88vh",
           display: "flex",
           flexDirection: "column",
-          boxShadow: "0 32px 80px rgba(0,0,0,0.8), 0 0 40px rgba(229,9,20,0.15)",
+          boxShadow: "0 32px 80px rgba(0,0,0,0.8), 0 0 40px rgba(221,51,36,0.15)",
           overflow: "hidden",
         }}
       >
@@ -624,7 +624,7 @@ export default function UpdateModal({
                     letterSpacing: "0.08em",
                     color: isDocker ? "#93c5fd" : isAndroid ? "#6ee7b7" : isTizen ? "#c4b5fd" : "var(--red)",
                     background: isDocker ? "rgba(59,130,246,0.15)" : isAndroid ? "rgba(52,211,153,0.15)" : isTizen ? "rgba(192,132,252,0.15)" : "var(--red-dim)",
-                    border: `1px solid ${isDocker ? "rgba(59,130,246,0.3)" : isAndroid ? "rgba(52,211,153,0.3)" : isTizen ? "rgba(192,132,252,0.3)" : "rgba(229,9,20,0.3)"}`,
+                    border: `1px solid ${isDocker ? "rgba(59,130,246,0.3)" : isAndroid ? "rgba(52,211,153,0.3)" : isTizen ? "rgba(192,132,252,0.3)" : "rgba(221,51,36,0.3)"}`,
                     borderRadius: "var(--radius-pill)",
                     padding: "2px 10px",
                   }}

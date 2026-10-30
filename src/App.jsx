@@ -1211,7 +1211,7 @@ export default function App() {
               left: 0,
               right: 0,
               zIndex: 9999,
-              background: "rgba(229,9,20,0.92)",
+              background: "rgba(221,51,36,0.92)",
               backdropFilter: "blur(8px)",
               display: "flex",
               alignItems: "center",

@@ -300,7 +300,7 @@ const INJECT_SKIP_CONTROLS = `
     } else {
       btn.style.right = '24px';
     }
-    btn.onmouseenter = function() { btn.style.background = 'rgba(229,9,20,0.85)'; btn.style.borderColor = '#e5091466'; };
+    btn.onmouseenter = function() { btn.style.background = 'rgba(221,51,36,0.85)'; btn.style.borderColor = '#dd332466'; };
     btn.onmouseleave = function() { btn.style.background = 'rgba(0,0,0,0.72)'; btn.style.borderColor = 'rgba(255,255,255,0.18)'; };
     btn.onclick = function(e) {
       e.stopPropagation();
@@ -2370,8 +2370,8 @@ export default function TVPage({
                       animation: "slideDown 0.2s ease",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "rgba(229,9,20,0.85)";
-                      e.currentTarget.style.borderColor = "rgba(229,9,20,0.5)";
+                      e.currentTarget.style.background = "rgba(221,51,36,0.85)";
+                      e.currentTarget.style.borderColor = "rgba(221,51,36,0.5)";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.background = "rgba(0,0,0,0.72)";
@@ -2741,7 +2741,7 @@ const EpisodeCard = memo(function EpisodeCard({
               style={{
                 borderColor:
                   epDownload.status === "downloading"
-                    ? "rgba(229,9,20,0.5)"
+                    ? "rgba(221,51,36,0.5)"
                     : "rgba(72,199,116,0.5)",
                 color:
                   epDownload.status === "downloading"
@@ -2749,7 +2749,7 @@ const EpisodeCard = memo(function EpisodeCard({
                     : "#4caf50",
                 background:
                   epDownload.status === "downloading"
-                    ? "rgba(229,9,20,0.12)"
+                    ? "rgba(221,51,36,0.12)"
                     : "rgba(72,199,116,0.18)",
               }}
               onClick={(e) => {

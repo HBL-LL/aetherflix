@@ -66,7 +66,7 @@ function SettingsSelect({ value, onChange, options, style }) {
           padding: "9px 14px",
           background: open ? "var(--surface3)" : "var(--surface2)",
           border: `1px solid ${open ? "var(--red)" : "var(--border)"}`,
-          boxShadow: open ? "0 0 0 3px rgba(229,9,20,0.12)" : "none",
+          boxShadow: open ? "0 0 0 3px rgba(221,51,36,0.12)" : "none",
           borderRadius: 8,
           color: "var(--text)",
           fontFamily: "var(--font-body)",
@@ -138,7 +138,7 @@ function SettingsSelect({ value, onChange, options, style }) {
                   borderRadius: 7,
                   cursor: "pointer",
                   color: active ? "var(--red)" : "var(--text)",
-                  background: active ? "rgba(229,9,20,0.10)" : "transparent",
+                  background: active ? "rgba(221,51,36,0.10)" : "transparent",
                   fontWeight: active ? 600 : 400,
                   transition: "background 0.1s, color 0.1s",
                   whiteSpace: "nowrap",
@@ -208,8 +208,8 @@ function ResetConfirmDialog({ onConfirm, onCancel }) {
             width: 52,
             height: 52,
             borderRadius: "50%",
-            background: "rgba(229,9,20,0.12)",
-            border: "1px solid rgba(229,9,20,0.3)",
+            background: "rgba(221,51,36,0.12)",
+            border: "1px solid rgba(221,51,36,0.3)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -313,8 +313,8 @@ function ConfirmDialog({
             width: 52,
             height: 52,
             borderRadius: "50%",
-            background: "rgba(229,9,20,0.12)",
-            border: "1px solid rgba(229,9,20,0.3)",
+            background: "rgba(221,51,36,0.12)",
+            border: "1px solid rgba(221,51,36,0.3)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -516,8 +516,8 @@ function CleanRow({
             danger
               ? {
                   color: hovered ? "#fff" : "var(--red)",
-                  background: hovered ? "rgba(229,9,20,0.85)" : "transparent",
-                  borderColor: hovered ? "transparent" : "rgba(229,9,20,0.35)",
+                  background: hovered ? "rgba(221,51,36,0.85)" : "transparent",
+                  borderColor: hovered ? "transparent" : "rgba(221,51,36,0.35)",
                   opacity: busy ? 0.5 : 1,
                   transition: "all 0.2s",
                 }
@@ -812,8 +812,8 @@ function VersionSection() {
               display: "inline-flex",
               alignItems: "center",
               gap: 6,
-              background: "rgba(229,9,20,0.14)",
-              border: "1px solid rgba(229,9,20,0.45)",
+              background: "rgba(221,51,36,0.14)",
+              border: "1px solid rgba(221,51,36,0.45)",
               color: "var(--red)",
               borderRadius: 8,
               padding: "7px 16px",
@@ -823,10 +823,10 @@ function VersionSection() {
               transition: "all 0.2s",
             }}
             onMouseEnter={(e) =>
-              (e.currentTarget.style.background = "rgba(229,9,20,0.25)")
+              (e.currentTarget.style.background = "rgba(221,51,36,0.25)")
             }
             onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "rgba(229,9,20,0.14)")
+              (e.currentTarget.style.background = "rgba(221,51,36,0.14)")
             }
           >
             🎉 v{result.latest} available — View & Install Update
@@ -977,8 +977,8 @@ function HomeLayoutSection() {
           {[
             {
               value: "carousel",
-              label: "Carousel",
-              desc: "Scrollable spotlight with featured poster",
+              label: "Rows",
+              desc: "Scrolling rows of wide cards, with a Top 10",
             },
             {
               value: "list",
@@ -1933,8 +1933,8 @@ function LibraryPrivacySection() {
               marginTop: 12,
               fontSize: 13,
               color: "var(--red)",
-              background: "rgba(229,9,20,0.08)",
-              border: "1px solid rgba(229,9,20,0.2)",
+              background: "rgba(221,51,36,0.08)",
+              border: "1px solid rgba(221,51,36,0.2)",
               borderRadius: 8,
               padding: "10px 14px",
             }}
@@ -2673,7 +2673,7 @@ function SectionGroupHeader({ title, subtitle }) {
           {title}
         </div>
         <div
-          style={{ flex: 1, height: 1, background: "rgba(229,9,20,0.18)" }}
+          style={{ flex: 1, height: 1, background: "rgba(221,51,36,0.18)" }}
         />
       </div>
       {subtitle && (
@@ -3136,7 +3136,7 @@ function SettingsTopBar({ sectionRefs, contentRef }) {
                 border: `1px solid ${noMatch ? "#ff3860" : "var(--red)"}`,
                 borderRadius: 8,
                 padding: "5px 8px 5px 12px",
-                boxShadow: `0 0 0 3px ${noMatch ? "rgba(255,56,96,0.1)" : "rgba(229,9,20,0.1)"}`,
+                boxShadow: `0 0 0 3px ${noMatch ? "rgba(255,56,96,0.1)" : "rgba(221,51,36,0.1)"}`,
                 transition: "border-color 0.15s, box-shadow 0.15s",
               }}
             >
@@ -3370,7 +3370,7 @@ function SettingsTopBar({ sectionRefs, contentRef }) {
               gap: 8,
               background: navOpen ? "var(--surface3)" : "var(--surface2)",
               border: `1px solid ${navOpen ? "var(--red)" : "var(--border)"}`,
-              boxShadow: navOpen ? "0 0 0 3px rgba(229,9,20,0.1)" : "none",
+              boxShadow: navOpen ? "0 0 0 3px rgba(221,51,36,0.1)" : "none",
               borderRadius: 8,
               padding: "6px 14px",
               fontSize: 13,
@@ -4326,7 +4326,7 @@ export default function SettingsPage({
                       marginTop: 1,
                       boxShadow:
                         introSkipMode === value
-                          ? "0 0 0 3px rgba(229,9,20,0.18)"
+                          ? "0 0 0 3px rgba(221,51,36,0.18)"
                           : "none",
                       transition: "all 0.15s",
                       display: "flex",
@@ -4588,7 +4588,7 @@ export default function SettingsPage({
             <div
               style={{
                 padding: "22px 24px",
-                background: "rgba(229,9,20,0.03)",
+                background: "rgba(221,51,36,0.03)",
               }}
             >
               <div
@@ -4618,8 +4618,8 @@ export default function SettingsPage({
                         fontWeight: 700,
                         letterSpacing: 1,
                         color: "var(--red)",
-                        background: "rgba(229,9,20,0.12)",
-                        border: "1px solid rgba(229,9,20,0.25)",
+                        background: "rgba(221,51,36,0.12)",
+                        border: "1px solid rgba(221,51,36,0.25)",
                         padding: "2px 7px",
                         borderRadius: 4,
                         textTransform: "uppercase",
@@ -4650,11 +4650,11 @@ export default function SettingsPage({
                     style={{
                       color: resetHovered ? "#fff" : "var(--red)",
                       background: resetHovered
-                        ? "rgba(229,9,20,0.85)"
-                        : "rgba(229,9,20,0.08)",
+                        ? "rgba(221,51,36,0.85)"
+                        : "rgba(221,51,36,0.08)",
                       border: resetHovered
                         ? "1px solid transparent"
-                        : "1px solid rgba(229,9,20,0.3)",
+                        : "1px solid rgba(221,51,36,0.3)",
                       transition: "all 0.2s",
                     }}
                   >

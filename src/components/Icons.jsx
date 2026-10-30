@@ -1,11 +1,61 @@
-export const StreambertLogo = ({ style }) => (
-  <img
-    src="/logo.png"
-    alt="AetherFlix"
-    width="44"
-    height="44"
+// Brand mark: an A tipped onto its side becomes the play button. Masters live in public/brand/.
+export const AetherFlixLogo = ({ style }) => (
+  <svg
+    viewBox="0 0 256 256"
+    fill="currentColor"
+    role="img"
+    aria-label="AetherFlix"
     style={{ width: "100%", height: "100%", display: "block", ...style }}
-  />
+  >
+    <path
+      fillRule="evenodd"
+      d="M66 25.07 L232.28 121.07 A8 8 0 0 1 232.28 134.93 L66 230.93 A8 8 0 0 1 54 224 L54 196.29 L90 175.5 L90 80.5 L54 59.71 L54 32 A8 8 0 0 1 66 25.07 Z M112 93.2 L172.28 128 L112 162.8 Z"
+    />
+  </svg>
+);
+
+const WORDMARK_PATHS = [
+  "M0.0 100.0 L21.1 0.0 L38.8 0.0 L17.7 100.0 Z",
+  "M60.0 100.0 L38.8 0.0 L21.1 0.0 L42.2 100.0 Z",
+  "M22.6 62.0 L37.4 62.0 L37.4 77.0 L22.6 77.0 Z",
+  "M72.0 0.0 L89.0 0.0 L89.0 100.0 L72.0 100.0 Z",
+  "M72.0 0.0 L116.0 0.0 L116.0 17.0 L72.0 17.0 Z",
+  "M72.0 41.5 L110.0 41.5 L110.0 58.5 L72.0 58.5 Z",
+  "M72.0 83.0 L116.0 83.0 L116.0 100.0 L72.0 100.0 Z",
+  "M128.0 0.0 L178.0 0.0 L178.0 17.0 L128.0 17.0 Z",
+  "M144.5 0.0 L161.5 0.0 L161.5 100.0 L144.5 100.0 Z",
+  "M190.0 0.0 L207.0 0.0 L207.0 100.0 L190.0 100.0 Z",
+  "M225.0 0.0 L242.0 0.0 L242.0 100.0 L225.0 100.0 Z",
+  "M190.0 41.5 L242.0 41.5 L242.0 58.5 L190.0 58.5 Z",
+  "M254.0 0.0 L271.0 0.0 L271.0 100.0 L254.0 100.0 Z",
+  "M254.0 0.0 L298.0 0.0 L298.0 17.0 L254.0 17.0 Z",
+  "M254.0 41.5 L292.0 41.5 L292.0 58.5 L254.0 58.5 Z",
+  "M254.0 83.0 L298.0 83.0 L298.0 100.0 L254.0 100.0 Z",
+  "M310.0 0.0 L327.0 0.0 L327.0 100.0 L310.0 100.0 Z",
+  "M310 0 H333.0 A29.0 29.0 0 0 1 333.0 58 H310 Z M327 17 V41 H333.0 A12.0 12.0 0 0 0 333.0 17 Z",
+  "M319.0 41.0 L338.0 41.0 L362.0 100.0 L341.0 100.0 Z",
+  "M374.0 0.0 L391.0 0.0 L391.0 100.0 L374.0 100.0 Z",
+  "M374.0 0.0 L418.0 0.0 L418.0 17.0 L374.0 17.0 Z",
+  "M374.0 41.5 L412.0 41.5 L412.0 58.5 L374.0 58.5 Z",
+  "M430.0 0.0 L447.0 0.0 L447.0 100.0 L430.0 100.0 Z",
+  "M430.0 83.0 L472.0 83.0 L472.0 100.0 L430.0 100.0 Z",
+  "M484.0 0.0 L501.0 0.0 L501.0 100.0 L484.0 100.0 Z",
+  "M513.0 0.0 L532.5 0.0 L569.0 100.0 L549.4 100.0 Z",
+  "M569.0 0.0 L549.4 0.0 L513.0 100.0 L532.5 100.0 Z",
+];
+
+export const AetherFlixWordmark = ({ style }) => (
+  <svg
+    viewBox="0 0 569 100"
+    fill="currentColor"
+    role="img"
+    aria-label="AetherFlix"
+    style={{ height: "1em", width: "auto", display: "block", ...style }}
+  >
+    {WORDMARK_PATHS.map((d) => (
+      <path key={d} fillRule="evenodd" d={d} />
+    ))}
+  </svg>
 );
 
 export const SearchIcon = () => (
@@ -309,6 +359,14 @@ export const ChevronRightIcon = ({ size = 26 }) => (
     strokeLinejoin="round"
   >
     <polyline points="9 18 15 12 9 6" />
+  </svg>
+);
+
+export const InfoIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 16v-4" />
+    <path d="M12 8h.01" />
   </svg>
 );
 
