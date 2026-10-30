@@ -13,7 +13,7 @@ Security updates are actively maintained on the latest release of AetherFlix:
 
 If you discover a security vulnerability in AetherFlix, please report it privately:
 
-1. **GitHub Security Advisories**: Submit an advisory via the [Security Advisories tab](https://github.com/Hamza-Boulila/aetherflix/security/advisories/new).
+1. **GitHub Security Advisories**: Submit an advisory via the [Security Advisories tab](https://github.com/HBL-LL/aetherflix/security/advisories/new).
 2. Please provide:
    - A detailed description of the vulnerability.
    - Steps to reproduce or a proof of concept (PoC).

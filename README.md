@@ -47,7 +47,7 @@ Stream any Movie, TV Series, or Anime with zero ads, rich TMDB metadata, and a m
 #### Using Docker Compose (Recommended)
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Hamza-Boulila/aetherflix.git
+git clone https://github.com/HBL-LL/aetherflix.git
 cd aetherflix
 
 # 2. Add your free TMDB API Read Access Token in .env

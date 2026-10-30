@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
   - name: GitHub Discussions
-    url: https://github.com/Hamza-Boulila/aetherflix/discussions
+    url: https://github.com/HBL-LL/aetherflix/discussions
     about: Ask questions, share feedback, or discuss feature ideas.
   - name: AetherFlix Documentation & Setup Guide
-    url: https://github.com/Hamza-Boulila/aetherflix#readme
+    url: https://github.com/HBL-LL/aetherflix#readme
     about: Instructions for running on Docker, Android TV, Samsung Tizen, or Desktop.
   - name: Latest Releases & Downloads
-    url: https://github.com/Hamza-Boulila/aetherflix/releases/latest
+    url: https://github.com/HBL-LL/aetherflix/releases/latest
     about: Download Android TV APK, Tizen WGT package, or Desktop installers.

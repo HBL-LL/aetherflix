@@ -8,7 +8,7 @@ body:
     attributes:
       value: |
         **README: Before You Submit Your Feature Request**
-        - For general questions or ideas you want to brainstorm first, visit the [Discussions page](https://github.com/Hamza-Boulila/aetherflix/discussions).
+        - For general questions or ideas you want to brainstorm first, visit the [Discussions page](https://github.com/HBL-LL/aetherflix/discussions).
 
   - type: checkboxes
     attributes:

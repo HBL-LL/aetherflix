@@ -2,6 +2,22 @@
 
 All notable changes to the **Streambert Web & Docker Edition** fork.
 
+## [1.1.0] - 2026-10-30
+
+### Rebrand
+- New AetherFlix logo (an A tipped onto its side becomes the play button) and wordmark across desktop, web, Docker, Android TV and Tizen.
+- Android launcher, adaptive and splash icons are now branded instead of Capacitor's placeholder.
+- Accent colour moves to Projector Red `#dd3324`.
+- Remaining user-facing "Streambert" text replaced: Windows uninstaller, Linux desktop entry, one-click launchers, titlebar and download logs.
+
+### Home screen
+- New screening-window layout: blurred ambient backdrop that follows the focused title, glass panel, rounded hero card, wide 16:9 rows and a Top 10 row.
+- Sidebar becomes a floating navigation capsule.
+
+### Fixes
+- Release links, the update checker and the updater's trusted download path now point at the `HBL-LL/aetherflix` repository.
+- Android TV and Tizen builds report their real version to the update checker instead of a hard-coded 1.0.0.
+
 ## [3.0.0-web] - 2026-10-17
 
 ### 🚀 Major Enhancements: Converted Desktop App to Web App & Docker
