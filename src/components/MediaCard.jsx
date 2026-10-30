@@ -18,6 +18,8 @@ const MediaCard = memo(function MediaCard({
   onMarkUnwatched,
   ageRating,
   restricted,
+  variant,
+  onPreview,
 }) {
   const title = item.title || item.name;
   const year = (item.release_date || item.first_air_date || "").slice(0, 4);
@@ -81,8 +83,10 @@ const MediaCard = memo(function MediaCard({
   return (
     <>
       <div
-        className={`card${isWatched ? " ep-watched" : ""}${isUnreleased ? " card--unreleased" : ""}`}
+        className={`card${variant === "landscape" ? " card--landscape" : ""}${isWatched ? " ep-watched" : ""}${isUnreleased ? " card--unreleased" : ""}`}
         onClick={onClick}
+        onMouseEnter={onPreview && (() => onPreview(item))}
+        onFocus={onPreview && (() => onPreview(item))}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
@@ -95,7 +99,13 @@ const MediaCard = memo(function MediaCard({
         onContextMenu={isUnreleased ? undefined : openMenu}
       >
         <div className="card-poster">
-          {item.poster_path ? (
+          {variant === "landscape" && item.backdrop_path ? (
+            <img
+              src={imgUrl(item.backdrop_path, "w780")}
+              alt={title}
+              loading="lazy"
+            />
+          ) : item.poster_path ? (
             <img
               src={imgUrl(item.poster_path, "w342")}
               alt={title}

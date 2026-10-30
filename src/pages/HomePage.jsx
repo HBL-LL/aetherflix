@@ -1,7 +1,12 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import MediaCard from "../components/MediaCard";
-import TrendingCarousel from "../components/TrendingCarousel";
-import { PlayIcon, StarIcon } from "../components/Icons";
+import MediaRow from "../components/MediaRow";
+import {
+  PlayIcon,
+  StarIcon,
+  InfoIcon,
+  AetherFlixWordmark,
+} from "../components/Icons";
 import { imgUrl, tmdbFetch } from "../utils/api";
 import { useRatings, getRatingForItem } from "../utils/useRatings";
 import { isRestricted } from "../utils/ageRating";
@@ -57,6 +62,36 @@ export default function HomePage({
   const { order: rowOrder, visible: rowVisible } = layout;
 
   const [viewMode] = useState(() => loadHomeViewMode());
+
+  // The "room" behind the panel: last two backdrops, newest fades in on top
+  const [ambient, setAmbient] = useState([null, null]);
+  const previewTimer = useRef(null);
+  const preview = useCallback((item) => {
+    clearTimeout(previewTimer.current);
+    previewTimer.current = setTimeout(() => {
+      const path = item.backdrop_path;
+      if (path)
+        setAmbient(([, cur]) => (cur === path ? [null, cur] : [cur, path]));
+    }, 140);
+  }, []);
+  useEffect(() => () => clearTimeout(previewTimer.current), []);
+  const ambientCur = ambient[1] || hero?.backdrop_path;
+
+  const [genreNames, setGenreNames] = useState({});
+  useEffect(() => {
+    if (!apiKey || offline) return;
+    tmdbFetch("/genre/movie/list", apiKey)
+      .then((d) =>
+        setGenreNames(
+          Object.fromEntries((d.genres || []).map((g) => [g.id, g.name])),
+        ),
+      )
+      .catch(() => {});
+  }, [apiKey, offline]);
+  const heroGenres = (hero?.genre_ids || [])
+    .map((id) => genreNames[id])
+    .filter(Boolean)
+    .slice(0, 3);
 
   // All items for batch ratings fetch
   const allItems = useMemo(
@@ -206,237 +241,271 @@ export default function HomePage({
     [trendingTV],
   );
 
+  const progressFor = (item) =>
+    progress[
+      item.media_type === "movie"
+        ? `movie_${item.id}`
+        : `tv_${item.id}_s${item.season}e${item.episode}`
+    ] || 0;
+
+  const rowProps = {
+    onSelect,
+    onPreview: preview,
+    ratingsMap: enrichedRatingsMap,
+    watched,
+    onMarkWatched,
+    onMarkUnwatched,
+  };
+
   return (
-    <div className="fade-in">
-      {/* ── Offline ── */}
-      {offline && (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            minHeight: "60vh",
-            gap: 16,
-            color: "var(--text2)",
-          }}
-        >
-          <div style={{ fontSize: 48 }}>📡</div>
-          <div style={{ fontSize: 20, fontWeight: 600, color: "var(--text)" }}>
-            No internet connection
-          </div>
-          <div style={{ fontSize: 14, color: "var(--text3)" }}>
-            Trending and search require an internet connection. Your downloads
-            and library still work offline.
-          </div>
-          <button
-            className="btn btn-primary"
-            style={{ marginTop: 8 }}
-            onClick={onRetry}
-          >
-            Retry
-          </button>
+    <>
+      {ambientCur && (
+        <div className="home-ambient" aria-hidden="true">
+          {ambient[0] && <img src={imgUrl(ambient[0], "w300")} alt="" />}
+          <img key={ambientCur} src={imgUrl(ambientCur, "w300")} alt="" />
         </div>
       )}
-
-      {!offline && loading && (
-        <div className="loader">
-          <div className="spinner" />
-        </div>
-      )}
-
-      {/* ── Hero (always first) ── */}
-      {!loading && hero && (
-        <div className="hero">
+      <div className="home-panel fade-in">
+        {/* ── Offline ── */}
+        {offline && (
           <div
-            className="hero-bg"
             style={{
-              backgroundImage: `url(${imgUrl(hero.backdrop_path, "original")})`,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: "60vh",
+              gap: 16,
+              color: "var(--text2)",
             }}
-          />
-          <div className="hero-gradient" />
-          <div className="hero-content">
-            <div className="hero-type">Trending · Movie</div>
-            <div className="hero-title">{hero.title || hero.name}</div>
-            <div className="hero-meta">
-              <span className="hero-rating">
-                <StarIcon /> {hero.vote_average?.toFixed(1)}
-              </span>
-              <span>{hero.release_date?.slice(0, 4)}</span>
+          >
+            <div style={{ fontSize: 48 }}>📡</div>
+            <div
+              style={{ fontSize: 20, fontWeight: 600, color: "var(--text)" }}
+            >
+              No internet connection
             </div>
-            <div className="hero-overview">{hero.overview}</div>
-            <div className="hero-actions">
-              <button
-                className="btn btn-primary"
-                onClick={() => onSelect(hero)}
-              >
-                <PlayIcon /> Watch Now
-              </button>
-              <button
-                className="btn btn-secondary"
-                onClick={() => onSelect(hero)}
-              >
-                More Info
-              </button>
+            <div style={{ fontSize: 14, color: "var(--text3)" }}>
+              Trending and search require an internet connection. Your downloads
+              and library still work offline.
             </div>
+            <button
+              className="btn btn-primary"
+              style={{ marginTop: 8 }}
+              onClick={onRetry}
+            >
+              Retry
+            </button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ── Rows in user-configured order ── */}
-      {rowOrder.map((id) => {
-        if (!rowVisible[id]) return null;
+        {!offline && loading && (
+          <div className="loader">
+            <div className="spinner" />
+          </div>
+        )}
 
-        if (id === "continue") {
-          if (inProgress.length === 0) return null;
-          return (
-            <div key="continue" className="section">
-              <div className="section-title">Continue Watching</div>
-              <div className="cards-grid">
-                {inProgress.map((item) => {
-                  const pk =
-                    item.media_type === "movie"
-                      ? `movie_${item.id}`
-                      : `tv_${item.id}_s${item.season}e${item.episode}`;
-                  const r = getRating(item);
-                  const restr = itemRestricted(item);
-                  return (
-                    <MediaCard
-                      key={`${item.media_type}_${item.id}`}
-                      item={item}
-                      onClick={() => onSelect(item)}
-                      progress={progress[pk] || 0}
-                      watched={watched}
-                      onMarkWatched={onMarkWatched}
-                      onMarkUnwatched={onMarkUnwatched}
-                      ageRating={r.cert}
-                      restricted={restr}
-                    />
-                  );
-                })}
-              </div>
+        {/* ── Hero (always first) ── */}
+        {!loading && hero && (
+          <section className="hero-card">
+            <img
+              className="hero-card-bg"
+              src={imgUrl(hero.backdrop_path, "original")}
+              alt=""
+            />
+            <div className="hero-card-shade" />
+            <div className="hero-card-brand">
+              <AetherFlixWordmark />
             </div>
-          );
-        }
-
-        // Render a section as a flat cards-grid (list view)
-        const renderList = (key, title, titleHighlight, items) => {
-          if (!items || items.length === 0) return null;
-          return (
-            <div key={key} className="section">
-              <div className="section-title">
-                {titleHighlight ? (
-                  <>
-                    {title}&nbsp;
-                    <span style={{ color: "var(--red)" }}>
-                      {titleHighlight}
-                    </span>
-                  </>
-                ) : (
-                  title
+            <div className="hero-card-body">
+              <h1 className="hero-card-title">{hero.title || hero.name}</h1>
+              <div className="hero-meta">
+                {hero.vote_average > 0 && (
+                  <span className="hero-rating">
+                    <StarIcon /> {hero.vote_average.toFixed(1)}
+                  </span>
                 )}
+                <span>{hero.release_date?.slice(0, 4)}</span>
+                {heroGenres.length > 0 && <span>{heroGenres.join(" · ")}</span>}
+                <span>#1 trending this week</span>
               </div>
-              <div className="cards-grid">
-                {items.map((item) => {
-                  const type = item.media_type === "tv" ? "tv" : "movie";
-                  const rk = `${type}_${item.id}`;
-                  const rd = enrichedRatingsMap[rk] || {};
-                  return (
-                    <MediaCard
-                      key={`${item.media_type}_${item.id}`}
-                      item={item}
-                      onClick={() => onSelect(item)}
-                      progress={0}
-                      watched={watched}
-                      onMarkWatched={onMarkWatched}
-                      onMarkUnwatched={onMarkUnwatched}
-                      ageRating={rd.cert}
-                      restricted={rd.restricted}
-                    />
-                  );
-                })}
+              <p className="hero-card-overview">{hero.overview}</p>
+              <div className="hero-actions">
+                <button
+                  className="btn btn-primary"
+                  onClick={() => onSelect(hero)}
+                >
+                  <PlayIcon /> Watch Now
+                </button>
+                <button
+                  className="btn btn-glass"
+                  onClick={() => onSelect(hero)}
+                >
+                  <InfoIcon /> More Info
+                </button>
               </div>
             </div>
-          );
-        };
+          </section>
+        )}
 
-        if (id === "recommended") {
-          if (filteredRecommendedItems.length === 0) return null;
-          if (viewMode === "list")
-            return renderList(
-              "recommended",
-              "Recommended for You",
-              null,
-              filteredRecommendedItems,
+        {/* ── Rows in user-configured order ── */}
+        {rowOrder.map((id) => {
+          if (!rowVisible[id]) return null;
+
+          if (id === "continue") {
+            if (inProgress.length === 0) return null;
+            if (viewMode !== "list")
+              return (
+                <MediaRow
+                  key="continue"
+                  title="Continue Watching"
+                  items={inProgress}
+                  progressFor={progressFor}
+                  {...rowProps}
+                />
+              );
+            return (
+              <div key="continue" className="section">
+                <div className="section-title">Continue Watching</div>
+                <div className="cards-grid">
+                  {inProgress.map((item) => {
+                    const r = getRating(item);
+                    const restr = itemRestricted(item);
+                    return (
+                      <MediaCard
+                        key={`${item.media_type}_${item.id}`}
+                        item={item}
+                        onClick={() => onSelect(item)}
+                        progress={progressFor(item)}
+                        watched={watched}
+                        onMarkWatched={onMarkWatched}
+                        onMarkUnwatched={onMarkUnwatched}
+                        ageRating={r.cert}
+                        restricted={restr}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
             );
-          return (
-            <TrendingCarousel
-              key="recommended"
-              items={filteredRecommendedItems}
-              title="Recommended for You"
-              onSelect={onSelect}
-              ratingsMap={enrichedRatingsMap}
-            />
-          );
-        }
+          }
 
-        if (id === "trendingMovies") {
-          if (trendingMovieItems.length === 0) return null;
-          if (viewMode === "list")
-            return renderList(
-              "trendingMovies",
-              "Trending Movies",
-              null,
-              trendingMovieItems,
+          // Render a section as a flat cards-grid (list view)
+          const renderList = (key, title, titleHighlight, items) => {
+            if (!items || items.length === 0) return null;
+            return (
+              <div key={key} className="section">
+                <div className="section-title">
+                  {titleHighlight ? (
+                    <>
+                      {title}&nbsp;
+                      <span style={{ color: "var(--red)" }}>
+                        {titleHighlight}
+                      </span>
+                    </>
+                  ) : (
+                    title
+                  )}
+                </div>
+                <div className="cards-grid">
+                  {items.map((item) => {
+                    const type = item.media_type === "tv" ? "tv" : "movie";
+                    const rk = `${type}_${item.id}`;
+                    const rd = enrichedRatingsMap[rk] || {};
+                    return (
+                      <MediaCard
+                        key={`${item.media_type}_${item.id}`}
+                        item={item}
+                        onClick={() => onSelect(item)}
+                        progress={0}
+                        watched={watched}
+                        onMarkWatched={onMarkWatched}
+                        onMarkUnwatched={onMarkUnwatched}
+                        ageRating={rd.cert}
+                        restricted={rd.restricted}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
             );
-          return (
-            <TrendingCarousel
-              key="trendingMovies"
-              items={trendingMovieItems}
-              title="Trending Movies"
-              onSelect={onSelect}
-              ratingsMap={enrichedRatingsMap}
-            />
-          );
-        }
+          };
 
-        if (id === "trendingTV") {
-          if (trendingTVItems.length === 0) return null;
-          if (viewMode === "list")
-            return renderList(
-              "trendingTV",
-              "Trending Series",
-              null,
-              trendingTVItems,
+          if (id === "recommended") {
+            if (filteredRecommendedItems.length === 0) return null;
+            if (viewMode === "list")
+              return renderList(
+                "recommended",
+                "Recommended for You",
+                null,
+                filteredRecommendedItems,
+              );
+            return (
+              <MediaRow
+                key="recommended"
+                title="Recommended for You"
+                items={filteredRecommendedItems}
+                {...rowProps}
+              />
             );
-          return (
-            <TrendingCarousel
-              key="trendingTV"
-              items={trendingTVItems}
-              title="Trending Series"
-              onSelect={onSelect}
-              ratingsMap={enrichedRatingsMap}
-            />
-          );
-        }
+          }
 
-        if (id === "topRated") {
-          if (topRatedItems.length === 0) return null;
-          if (viewMode === "list")
-            return renderList("topRated", "Top Rated", null, topRatedItems);
-          return (
-            <TrendingCarousel
-              key="topRated"
-              items={topRatedItems}
-              title="Top Rated"
-              onSelect={onSelect}
-              ratingsMap={enrichedRatingsMap}
-            />
-          );
-        }
+          if (id === "trendingMovies") {
+            if (trendingMovieItems.length === 0) return null;
+            if (viewMode === "list")
+              return renderList(
+                "trendingMovies",
+                "Trending Movies",
+                null,
+                trendingMovieItems,
+              );
+            return (
+              <MediaRow
+                key="trendingMovies"
+                title="Top 10 Movies This Week"
+                items={trendingMovieItems}
+                ranked
+                {...rowProps}
+              />
+            );
+          }
 
-        return null;
-      })}
-    </div>
+          if (id === "trendingTV") {
+            if (trendingTVItems.length === 0) return null;
+            if (viewMode === "list")
+              return renderList(
+                "trendingTV",
+                "Trending Series",
+                null,
+                trendingTVItems,
+              );
+            return (
+              <MediaRow
+                key="trendingTV"
+                title="Trending Series"
+                items={trendingTVItems}
+                {...rowProps}
+              />
+            );
+          }
+
+          if (id === "topRated") {
+            if (topRatedItems.length === 0) return null;
+            if (viewMode === "list")
+              return renderList("topRated", "Top Rated", null, topRatedItems);
+            return (
+              <MediaRow
+                key="topRated"
+                title="Top Rated"
+                items={topRatedItems}
+                {...rowProps}
+              />
+            );
+          }
+
+          return null;
+        })}
+      </div>
+    </>
   );
 }

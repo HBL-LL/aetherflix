@@ -132,7 +132,7 @@ function injectTitlebar() {
   );
   const closeBtn = makeTitlebarBtn(
     ICON_CLOSE,
-    "rgba(229,9,20,0.85)",
+    "rgba(221,51,36,0.85)",
     "Close",
     () => ipcRenderer.invoke("popout-window-close"),
   );

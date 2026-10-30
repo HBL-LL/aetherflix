@@ -484,7 +484,7 @@ export default function SubtitleDownloaderModal({
                       background: alreadyHave
                         ? "rgba(255,255,255,0.01)"
                         : isSelected
-                          ? "rgba(229,9,20,0.07)"
+                          ? "rgba(221,51,36,0.07)"
                           : "transparent",
                       display: "flex",
                       alignItems: "flex-start",
@@ -500,7 +500,7 @@ export default function SubtitleDownloaderModal({
                       e.currentTarget.style.background = alreadyHave
                         ? "rgba(255,255,255,0.01)"
                         : isSelected
-                          ? "rgba(229,9,20,0.07)"
+                          ? "rgba(221,51,36,0.07)"
                           : "transparent";
                     }}
                   >

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { imgUrl } from "../utils/api";
 import { useSeasonalEvent } from "../components/seasonalEvents.jsx";
 import {
-  StreambertLogo,
+  AetherFlixLogo,
   HomeIcon,
   SearchIcon,
   HistoryIcon,
@@ -108,84 +108,97 @@ export default function Sidebar({
         title="AetherFlix"
         style={{ position: "relative" }}
       >
-        <StreambertLogo />
+        <AetherFlixLogo />
         {seasonalEvent && seasonalEvent.render()}
       </div>
 
-      {canGoBack && (
-        <SideBtn onClick={onBack} icon={<BackIcon />} label="Back (Ctrl+Z)" />
-      )}
+      <nav className="sidebar-pill" aria-label="Main">
+        {canGoBack && (
+          <SideBtn onClick={onBack} icon={<BackIcon />} label="Back (Ctrl+Z)" />
+        )}
 
-      <SideBtn onClick={onSearch} icon={<SearchIcon />} label="Search  (⌘F)" />
-      <SideBtn
-        active={page === "home"}
-        onClick={() => onNavigate("home")}
-        icon={<HomeIcon />}
-        label="Home"
-      />
-      <SideBtn
-        active={page === "history"}
-        onClick={() => onNavigate("history")}
-        icon={<HistoryIcon />}
-        label="Library & History"
-      />
-      <SideBtn
-        active={page === "downloads"}
-        onClick={() => onNavigate("downloads")}
-        icon={<DownloadsQueueIcon />}
-        label="Downloads"
-        badge={activeDownloads > 0 ? activeDownloads : null}
-      />
+        <SideBtn
+          onClick={onSearch}
+          icon={<SearchIcon />}
+          label="Search  (⌘F)"
+        />
+        <SideBtn
+          active={page === "home"}
+          onClick={() => onNavigate("home")}
+          icon={<HomeIcon />}
+          label="Home"
+        />
+        <SideBtn
+          active={page === "history"}
+          onClick={() => onNavigate("history")}
+          icon={<HistoryIcon />}
+          label="Library & History"
+        />
+        <SideBtn
+          active={page === "downloads"}
+          onClick={() => onNavigate("downloads")}
+          icon={<DownloadsQueueIcon />}
+          label="Downloads"
+          badge={activeDownloads > 0 ? activeDownloads : null}
+        />
 
-      <div className="sidebar-sep" />
+        <div className="sidebar-sep" />
 
-      <div className="sidebar-saved">
-        {savedList.map((item, index) => {
-          const key = `${item.media_type}_${item.id}`;
-          const title = item.title || item.name;
-          return (
-            <div
-              key={key}
-              className={`saved-thumb${dragOver === index ? " drag-over" : ""}`}
-              draggable
-              onDragStart={(e) => handleDragStart(e, index)}
-              onDragEnd={handleDragEnd}
-              onDragEnter={(e) => handleDragEnter(e, index)}
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, index)}
-              onClick={() =>
-                onNavigate(item.media_type === "tv" ? "tv" : "movie", item)
-              }
-              onContextMenu={(e) => handleContextMenu(e, item)}
-              onMouseEnter={(e) => handleMouseEnter(e, title)}
-              onMouseLeave={handleMouseLeave}
-              style={{ cursor: "grab", position: "relative" }}
-            >
-              {item.poster_path ? (
-                <img src={imgUrl(item.poster_path, "w200")} alt={title} />
-              ) : (
-                <div className="no-img">
-                  <FilmIcon />
-                </div>
-              )}
-              {dragOver === index && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: 3,
-                    background: "var(--accent, #e50914)",
-                    borderRadius: 2,
-                    pointerEvents: "none",
-                  }}
-                />
-              )}
-            </div>
-          );
-        })}
-      </div>
+        <div className="sidebar-saved">
+          {savedList.map((item, index) => {
+            const key = `${item.media_type}_${item.id}`;
+            const title = item.title || item.name;
+            return (
+              <div
+                key={key}
+                className={`saved-thumb${dragOver === index ? " drag-over" : ""}`}
+                draggable
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragEnd={handleDragEnd}
+                onDragEnter={(e) => handleDragEnter(e, index)}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, index)}
+                onClick={() =>
+                  onNavigate(item.media_type === "tv" ? "tv" : "movie", item)
+                }
+                onContextMenu={(e) => handleContextMenu(e, item)}
+                onMouseEnter={(e) => handleMouseEnter(e, title)}
+                onMouseLeave={handleMouseLeave}
+                style={{ cursor: "grab", position: "relative" }}
+              >
+                {item.poster_path ? (
+                  <img src={imgUrl(item.poster_path, "w200")} alt={title} />
+                ) : (
+                  <div className="no-img">
+                    <FilmIcon />
+                  </div>
+                )}
+                {dragOver === index && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: 3,
+                      background: "var(--accent, #dd3324)",
+                      borderRadius: 2,
+                      pointerEvents: "none",
+                    }}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <SideBtn
+          active={page === "settings"}
+          onClick={() => onNavigate("settings")}
+          icon={<SettingsIcon />}
+          label="Settings"
+        />
+      </nav>
 
       {tooltip && (
         <div className="saved-thumb-tooltip" style={{ top: tooltip.y }}>
@@ -222,18 +235,12 @@ export default function Sidebar({
           icon={<HelpIcon />}
           label="Help & Shortcuts (?)"
         />
-        <SideBtn
-          active={page === "settings"}
-          onClick={() => onNavigate("settings")}
-          icon={<SettingsIcon />}
-          label="Settings"
-        />
         {window.electron && !window.electron?._isWebPolyfill ? (
           <button
             className="sidebar-btn"
             onClick={() => window.electron?.quitApp?.()}
             title="Quit App"
-            style={{ color: "#e53e3e", marginTop: 4 }}
+            style={{ color: "#e53e3e" }}
           >
             <QuitIcon />
             <span className="tooltip">Quit App</span>
@@ -243,9 +250,17 @@ export default function Sidebar({
             className="sidebar-btn"
             onClick={() => window.electron?.windowToggleMaximize?.()}
             title="Fullscreen"
-            style={{ marginTop: 4 }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
             </svg>
             <span className="tooltip">Fullscreen</span>
@@ -263,23 +278,8 @@ function SideBtn({ active, onClick, icon, label, badge }) {
       onClick={onClick}
       style={{ position: "relative" }}
       aria-label={label}
+      aria-current={active ? "page" : undefined}
     >
-      {active && (
-        <span
-          className="sidebar-active-indicator"
-          style={{
-            position: "absolute",
-            left: -8,
-            top: "50%",
-            transform: "translateY(-50%)",
-            width: 3.5,
-            height: 22,
-            borderRadius: "0 3px 3px 0",
-            background: "var(--red)",
-            boxShadow: "0 0 10px var(--red)",
-          }}
-        />
-      )}
       {icon}
       <span className="tooltip">{label}</span>
       {badge && (

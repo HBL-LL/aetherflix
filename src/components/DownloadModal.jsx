@@ -223,7 +223,7 @@ export function SubtitleBrowser({
                     cursor: "pointer",
                     borderBottom: "1px solid var(--border)",
                     background: isSelected
-                      ? "rgba(229,9,20,0.08)"
+                      ? "rgba(221,51,36,0.08)"
                       : "transparent",
                     display: "flex",
                     alignItems: "flex-start",
@@ -236,7 +236,7 @@ export function SubtitleBrowser({
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = isSelected
-                      ? "rgba(229,9,20,0.08)"
+                      ? "rgba(221,51,36,0.08)"
                       : "transparent";
                   }}
                 >

@@ -74,6 +74,10 @@ if (fs.existsSync(bannerSrc)) {
   console.log('✓ Copied 16:9 TV Banner to android res/drawable/tv_banner.png');
 }
 
+// 3b. Overwrite Capacitor's placeholder launcher icons and splash screens with the AetherFlix brand set
+fs.cpSync(path.join(rootDir, 'resources', 'android-res'), path.join(androidDir, 'app', 'src', 'main', 'res'), { recursive: true });
+console.log('✓ Copied AetherFlix launcher icons and splash screens to android res/');
+
 // 4. Update MainActivity.java for TV WebSettings
 const javaDir = path.join(androidDir, 'app', 'src', 'main', 'java', 'com', 'aetherflix', 'tv');
 const mainActivityJava = path.join(javaDir, 'MainActivity.java');

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { StreambertLogo, PlayIcon } from "./Icons";
+import { AetherFlixLogo, AetherFlixWordmark, PlayIcon } from "./Icons";
 
 const TMDB_BASE = "https://api.themoviedb.org/3";
 
@@ -123,9 +123,11 @@ export default function SetupScreen({ onSave, onSkip }) {
     <div className="apikey-modal">
       <div className="apikey-box">
         <div className="apikey-logo">
-          <StreambertLogo />
+          <AetherFlixLogo />
         </div>
-        <div className="apikey-title">AETHERFLIX</div>
+        <h1 className="apikey-title">
+          <AetherFlixWordmark />
+        </h1>
         <div className="apikey-tagline">CINEMA-GRADE STREAMING EXPERIENCE</div>
         <p className="apikey-sub">
           Enter your <strong>free</strong> TMDB{" "}

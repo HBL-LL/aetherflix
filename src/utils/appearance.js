@@ -6,10 +6,10 @@ export const ACCENT_PRESETS = [
   {
     id: "red",
     label: "Red",
-    color: "#e50914",
-    color2: "#ff1a24",
-    dim: "rgba(229,9,20,0.15)",
-    glow: "0 0 30px rgba(229,9,20,0.3)",
+    color: "#dd3324",
+    color2: "#f0503e",
+    dim: "rgba(221,51,36,0.15)",
+    glow: "0 0 30px rgba(221,51,36,0.3)",
   },
   {
     id: "blue",
