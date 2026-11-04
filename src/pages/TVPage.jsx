@@ -46,6 +46,7 @@ import {
   SourceIcon,
   ShieldBlockIcon,
   PopOutIcon,
+  CastIcon,
 } from "../components/Icons";
 import DownloadModal from "../components/DownloadModal";
 import TrailerModal from "../components/TrailerModal";
@@ -67,6 +68,8 @@ import {
   getAgeLimitSetting,
   getRatingCountry,
 } from "../utils/ageRating";
+import CastModal from "../components/CastModal";
+import { useCredits } from "../utils/useCredits";
 import {
   GAMEPAD_PLAYER_SCRIPT,
   GAMEPAD_EXIT_CHECK_JS,
@@ -430,6 +433,8 @@ export default function TVPage({
   const [showDownload, setShowDownload] = useState(false);
   const [trailerKey, setTrailerKey] = useState(null);
   const [showTrailer, setShowTrailer] = useState(false);
+  const [showCast, setShowCast] = useState(false);
+  const credits = useCredits("tv", item.id, apiKey);
   const [m3u8Url, setM3u8Url] = useState(null);
   const [interceptedSubs, setInterceptedSubs] = useState([]);
   const [playerSource, setPlayerSource] = useState(
@@ -1800,6 +1805,12 @@ export default function TVPage({
                         <TrailerIcon /> Trailer
                       </button>
                     ))}
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => setShowCast(true)}
+                  >
+                    <CastIcon /> Cast
+                  </button>
                   <button className="btn btn-secondary" onClick={onSave}>
                     {isSaved ? <BookmarkFillIcon /> : <BookmarkIcon />}
                     {isSaved ? "Saved" : "Save"}
@@ -2579,6 +2590,16 @@ export default function TVPage({
           trailerKey={trailerKey}
           title={title}
           onClose={() => setShowTrailer(false)}
+        />
+      )}
+
+      {showCast && (
+        <CastModal
+          cast={credits.cast}
+          crew={credits.crew}
+          creators={details?.created_by || []}
+          title={title}
+          onClose={() => setShowCast(false)}
         />
       )}
 
