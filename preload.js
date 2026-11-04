@@ -46,6 +46,7 @@ contextBridge.exposeInMainWorld("electron", {
       seconds,
       subtitlePaths,
     }),
+  openStreamExternal: (args) => ipcRenderer.invoke("open-stream-external", args),
   pruneSubtitlePaths: (downloadId) =>
     ipcRenderer.invoke("prune-subtitle-paths", { downloadId }),
 
