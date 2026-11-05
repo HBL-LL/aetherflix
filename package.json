@@ -1,6 +1,6 @@
 {
   "name": "aetherflix",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "AetherFlix - Universal Smart TV (Android TV, Tizen) & Web Streaming Platform",
   "author": {
     "name": "Hamza Boulila",
@@ -38,6 +38,7 @@
     "dompurify": "^3.4.17",
     "express": "^5.3.0",
     "express-rate-limit": "^8.7.1",
+    "hls.js": "1.5.17",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "scripts": "^0.1.0"

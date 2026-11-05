@@ -218,9 +218,9 @@ export function initWebAdapter() {
     offPipClosed: (cb) => removeListener("pip-window-closed", cb),
 
     // Anime resolution via web API
-    resolveAllManga: async (args) => {
+    resolveHiAnime: async (args) => {
       try {
-        const res = await fetch(`${getServerBaseUrl()}/api/allmanga/resolve`, {
+        const res = await fetch(`${getServerBaseUrl()}/api/hianime/resolve`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(args),
@@ -234,24 +234,22 @@ export function initWebAdapter() {
       }
     },
 
-    setPlayerVideo: async ({ url, referer, startTime }) => {
-      try {
-        const res = await fetch(`${getServerBaseUrl()}/api/allmanga/set-player-video`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url, referer, startTime }),
-        });
-        if (res.ok) {
-          return await res.json();
-        }
-      } catch {}
-      // Fallback direct URL format
-      return {
-        playerUrl: `${getServerBaseUrl()}/api/player?url=${encodeURIComponent(url)}&referer=${encodeURIComponent(referer || "")}&t=${startTime || 0}`,
-      };
+    setPlayerVideo: async (args) => {
+      const res = await fetch(`${getServerBaseUrl()}/api/hianime/set-player-video`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(args),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.playerUrl) {
+        throw new Error(data.error || `Server returned HTTP ${res.status}`);
+      }
+      return { playerUrl: `${getServerBaseUrl()}${data.playerUrl}` };
     },
 
-    debugAllManga: async () => ({ ok: true }),
+    // Lookup stages are only pushed over Electron IPC; the loader stays on its first step
+    onHiAnimeProgress: () => () => {},
+    debugHiAnime: async () => ({ ok: true }),
 
     // Subtitle API
     searchSubtitles: async (args) => {

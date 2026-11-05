@@ -1,12 +1,13 @@
 // ── Discord Rich Presence (zero-dependency IPC client) ────────────────────────
-// Talks directly to the local Discord client trough native node net/fs
+// Talks directly to the local Discord client through native node net/fs
 //
 // Protocol summary (see discord/discord-rpc docs):
 //   Frame = uint32LE opcode + uint32LE payloadLength + JSON payload (utf8)
 //   Opcodes: 0 HANDSHAKE, 1 FRAME, 2 CLOSE
+//
+// Debugging: start the app with DISCORD_RPC_DEBUG=1 to log every step.
 
 const net = require("net");
-const fs = require("fs");
 const path = require("path");
 
 const CLIENT_ID = "1522558650076627076";
@@ -16,6 +17,11 @@ const MIN_SEND_INTERVAL_MS = 15000;
 const RECONNECT_DELAY_MS = 15000;
 
 const OP = { HANDSHAKE: 0, FRAME: 1, CLOSE: 2 };
+
+const DEBUG = !!process.env.DISCORD_RPC_DEBUG;
+function debug(...args) {
+  if (DEBUG) console.log("[discord-rpc]", ...args);
+}
 
 function candidatePipePaths() {
   if (process.platform === "win32") {
@@ -29,8 +35,10 @@ function candidatePipePaths() {
     "/tmp";
   const dirs = [
     base,
-    path.join(base, "app/com.discordapp.Discord"), // flatpak
-    path.join(base, "snap.discord"), // snap
+    // Vesktop (flatpak): Flatpak maps the sandbox's xdg-run/discord-ipc-0 here on the host
+    path.join(base, ".flatpak/dev.vencord.Vesktop/xdg-run"),
+    path.join(base, "app/com.discordapp.Discord"), // Discord (flatpak)
+    path.join(base, "snap.discord"), // Discord (snap)
   ];
   const paths = [];
   for (const dir of dirs) {
@@ -79,6 +87,7 @@ function clearFlushTimer() {
 
 function scheduleReconnect() {
   if (!enabled || reconnectTimer) return;
+  debug(`no connection, retrying in ${RECONNECT_DELAY_MS} ms`);
   reconnectTimer = setTimeout(() => {
     reconnectTimer = null;
     if (enabled) connect();
@@ -96,11 +105,13 @@ function teardownSocket() {
 }
 
 function onSocketDown() {
+  debug("socket closed or errored");
   teardownSocket();
   scheduleReconnect();
 }
 
 function handleFrame(op, obj) {
+  debug("received frame", op, obj && obj.cmd, obj && obj.evt);
   if (op === OP.FRAME && obj && obj.cmd === "DISPATCH" && obj.evt === "READY") {
     ready = true;
     flush();
@@ -117,7 +128,8 @@ function onData(chunk) {
     recvBuffer = recvBuffer.subarray(8 + len);
     try {
       handleFrame(op, JSON.parse(payload.toString("utf8")));
-    } catch {
+    } catch (err) {
+      debug("failed to parse frame", err && err.message);
     }
   }
 }
@@ -128,12 +140,18 @@ function tryPaths(paths, index) {
     return;
   }
   const target = paths[index];
+  debug("trying", target);
   const sock = net.createConnection(target);
   let settled = false;
 
-  const failNext = () => {
+  // err is the socket error (e.g. ENOENT, ECONNREFUSED, EACCES) or undefined on timeout
+  const failNext = (err) => {
     if (settled) return;
     settled = true;
+    // Only log paths that exist but fail, plain ENOENT would flood the log
+    if (!err || err.code !== "ENOENT") {
+      debug("failed", target, err && err.code ? err.code : "timeout");
+    }
     clearTimeout(timeout);
     sock.removeAllListeners();
     sock.destroy();
@@ -146,6 +164,7 @@ function tryPaths(paths, index) {
     if (settled) return;
     settled = true;
     clearTimeout(timeout);
+    debug("connected to", target);
     socket = sock;
     socket.on("data", onData);
     socket.on("close", onSocketDown);
@@ -166,6 +185,7 @@ function doSend() {
   const activity = pendingActivity;
   hasPending = false;
   lastSentAt = Date.now();
+  debug("sending SET_ACTIVITY", activity ? "(activity)" : "(clear)");
   try {
     socket.write(
       encodeFrame(OP.FRAME, {

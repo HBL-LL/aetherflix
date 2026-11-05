@@ -2,6 +2,24 @@
 
 All notable changes to the **Streambert Web & Docker Edition** fork.
 
+## [1.2.0] - 2026-11-05
+
+Synced with upstream Streambert 2.7.0 (features only; AetherFlix keeps its own design).
+
+### Added
+- New sources: Vidfast, Vidlove, Vidrift (new default), Vidnest (anime), DeVideoSrc (German), Frembed (French), KinoHub (Russian). Upstream's Aether is not included because it cannot be embedded.
+- HiAnime anime playback (sub/dub) in the desktop app and the web/Docker server, replacing AllManga.
+- Cast & crew modal on movie and TV pages.
+- Open captured streams in mpv or VLC (desktop).
+- Upstream's new ad-block domains.
+
+### Removed
+- Videasy, Vidking and AllManga, which no longer work. Saved preferences move to the new defaults.
+
+### Fixed
+- Player URLs were double-encoded, garbling source options.
+- macOS video-downloader hint; Discord Rich Presence with Flatpak Vesktop.
+
 ## [1.1.0] - 2026-10-30
 
 ### Rebrand
