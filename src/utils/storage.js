@@ -7,7 +7,11 @@ const SENSITIVE_KEY_PATTERN = /(?:key|token|secret|password|auth|credential)/i;
 export const storage = {
   get(key) {
     try {
-      const raw = localStorage.getItem(PREFIX + key);
+      let raw = localStorage.getItem(PREFIX + key);
+      // Legacy AllManga → HiAnime migration (settings saved by older versions)
+      if (!raw && key === "hianimeDubMode") {
+        raw = localStorage.getItem(PREFIX + "allmangaDubMode");
+      }
       if (!raw) return null;
       // Discard legacy encrypted values left over from earlier versions
       if (typeof raw === "string" && (raw.startsWith("aes_") || raw.startsWith("enc_"))) {
@@ -16,11 +20,16 @@ export const storage = {
         } catch {}
         return null;
       }
+      let value;
       try {
-        return JSON.parse(raw);
+        value = JSON.parse(raw);
       } catch {
-        return raw;
+        value = raw;
       }
+      if (key === "playerSource" && value === "allmanga") return "hianime";
+      // Sources removed upstream: fall back to the current default source
+      if (key === "playerSource" && (value === "videasy" || value === "vidking")) return null;
+      return value;
     } catch {
       return null;
     }
@@ -53,7 +62,7 @@ export const storage = {
 export const STORAGE_KEYS = {
   UPDATE_SOURCE: "updateSource",
   PLAYER_SOURCE: "playerSource",
-  ALLMANGA_DUB_MODE: "allmangaDubMode",
+  HIANIME_DUB_MODE: "hianimeDubMode",
   WATCH_PROGRESS: "progress",
   WATCHED: "watched",
   HISTORY: "history",
@@ -92,7 +101,7 @@ export const STORAGE_KEYS = {
   NOTIFY_NEW_EPISODE: "notifyNewEpisode",
   // TMDB metadata lang (BCP-47 locale, e.g. "de-DE")
   TMDB_LANG: "tmdbLang",
-  // Intro skip (anime only, allmanga source)
+  // Intro skip (anime only, HiAnime source)
   // Values: "off" | "auto" | "manual"
   INTRO_SKIP_MODE: "introSkipMode",
   // Autoplay next preferences
@@ -105,7 +114,7 @@ export const STORAGE_KEYS = {
   DL_SHOW_UNTRACKED: "dlShowUntracked",
   // Cache for new-episode startup check
   EPISODE_RELEASE_CACHE: "episodeReleaseCache",
-  // Per-episode fallback source when the default (typically AllManga) lacks
+  // Per-episode fallback source when the default (typically HiAnime) lacks
   // the title. Shape: { [epKey]: sourceId }.
   SOURCE_FAILOVER_CACHE: "sourceFailoverCache",
   // Discord Rich Presence
@@ -124,7 +133,7 @@ export const getApiKey = () => {
 };
 
 // ── Source failover cache ────────────────────────────────────────────────────
-// AllManga doesn't always have every episode; rather than nag the user every
+// HiAnime doesn't always have every episode; rather than nag the user every
 // time, remember the working alternate source per (tmdbId, season, ep, dub).
 // Max 200 entries
 const FAILOVER_CACHE_MAX = 200;

@@ -13,5 +13,10 @@ export function sanitizeIframeSrc(rawUrl) {
     return "about:blank";
   }
   const clean = DOMPurify.sanitize(url);
-  return encodeURI(clean) || "about:blank";
+  // new URL() normalises without re-encoding: encodeURI turned "%2C" into "%252C"
+  try {
+    return new URL(clean, window.location.origin).href;
+  } catch {
+    return "about:blank";
+  }
 }

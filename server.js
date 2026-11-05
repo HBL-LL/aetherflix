@@ -3,7 +3,7 @@ const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
 const rateLimit = require("express-rate-limit");
-const allmangaService = require("./src/server/allmangaService");
+const hianime = require("./src/ipc/hianime");
 const subtitlesService = require("./src/server/subtitlesService");
 
 // Load environment variables from .env and .env.local files if present
@@ -37,9 +37,15 @@ const PORT = process.env.PORT || 3000;
 const HOST = "0.0.0.0";
 
 // Security & Rate Limiting
+// HiAnime playback fetches hundreds of HLS segments per episode; those
+// token-protected routes must not count against the limits.
+const HIANIME_STREAM_PATH = "/hianime-stream";
+const isStreamRequest = (req) => req.originalUrl.startsWith(HIANIME_STREAM_PATH + "/");
+
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000,
+  skip: isStreamRequest,
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -89,62 +95,20 @@ app.get("/api/config", (req, res) => {
   });
 });
 
-// ── AllManga Anime Streaming APIs ────────────────────────────────────────────
-app.post("/api/allmanga/resolve", async (req, res) => {
+// ── HiAnime Anime Streaming APIs ─────────────────────────────────────────────
+app.post("/api/hianime/resolve", async (req, res) => {
+  res.json(await hianime.resolveHiAnime(req.body || {}));
+});
+
+app.post("/api/hianime/set-player-video", async (req, res) => {
   try {
-    const result = await allmangaService.resolveAllManga(req.body || {});
-    res.json(result);
+    res.json({ playerUrl: await hianime.setPlayerVideo(req.body || {}) });
   } catch (err) {
-    res.status(500).json({ ok: false, error: err.message });
+    res.status(400).json({ error: String(err?.message || err).slice(0, 200) });
   }
 });
 
-app.post("/api/allmanga/set-player-video", (req, res) => {
-  const { url, referer, startTime } = req.body || {};
-  const safeUrl = typeof url === "string" ? url : "";
-  const safeReferer = typeof referer === "string" ? referer : "";
-  const safeStartTime = Number(startTime) || 0;
-  const playerUrl = `/api/player?url=${encodeURIComponent(safeUrl)}&referer=${encodeURIComponent(safeReferer)}&t=${safeStartTime}`;
-  res.json({ playerUrl });
-});
-
-app.get("/api/allmanga/proxy", (req, res) => {
-  allmangaService.streamProxy(req, res);
-});
-
-app.get("/api/player", (req, res) => {
-  const { url, t, referer } = req.query;
-  if (!url || typeof url !== "string") {
-    return res.status(400).send("Missing or invalid video URL");
-  }
-
-  // Validate URL protocol strictly
-  try {
-    const parsed = new URL(url);
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-      return res.status(400).send("Invalid URL protocol");
-    }
-  } catch {
-    return res.status(400).send("Invalid video URL format");
-  }
-
-  let safeReferer = "https://allmanga.to";
-  if (referer && typeof referer === "string") {
-    try {
-      const parsedRef = new URL(referer);
-      if (parsedRef.protocol === "http:" || parsedRef.protocol === "https:") {
-        safeReferer = parsedRef.href;
-      }
-    } catch {}
-  }
-
-  const safeTime = Math.max(0, Number(t) || 0);
-  const html = allmangaService.buildPlayerHtml(url, safeTime, safeReferer);
-  res.setHeader("Content-Type", "text/html; charset=utf-8");
-  res.setHeader("Cache-Control", "no-store");
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  res.send(html);
-});
+hianime.mount(app, HIANIME_STREAM_PATH);
 
 // ── Subtitles APIs ───────────────────────────────────────────────────────────
 app.post("/api/subtitles/search", async (req, res) => {

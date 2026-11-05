@@ -29,6 +29,7 @@ RUN npm install --omit=dev --ignore-scripts && npm cache clean --force
 # Copy server code and built assets from builder
 COPY server.js ./
 COPY src/server/ ./src/server/
+COPY src/ipc/hianime.js ./src/ipc/hianime.js
 COPY --from=builder /app/dist ./dist
 
 # Create storage / downloads folder
