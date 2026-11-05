@@ -2,7 +2,7 @@
 
 All notable changes to the **Streambert Web & Docker Edition** fork.
 
-## [Unreleased]
+## [1.2.0] - 2026-11-05
 
 Synced with upstream Streambert 2.7.0 (features only; AetherFlix keeps its own design).
 
