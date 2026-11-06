@@ -8,7 +8,7 @@ COPY package*.json ./
 RUN npm install
 
 # Copy application sources and build production web bundle
-COPY index.html vite.config.js ./
+COPY index.html vite.config.mjs ./
 COPY public/ ./public/
 COPY src/ ./src/
 RUN npm run build
