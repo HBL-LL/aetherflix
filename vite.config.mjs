@@ -17,12 +17,13 @@ export default defineConfig(({ mode }) => {
       },
       rollupOptions: {
         output: {
-          manualChunks: {
-            react: ["react", "react-dom"],
-            settings: ["./src/pages/SettingsPage"],
-            movie: ["./src/pages/MoviePage"],
-            tv: ["./src/pages/TVPage"],
-            downloads: ["./src/pages/DownloadsPage"],
+          // Vite 8 (Rolldown) only accepts the function form
+          manualChunks(id) {
+            if (/node_modules\/(react|react-dom|scheduler)\//.test(id)) return "react";
+            if (id.includes("/src/pages/SettingsPage")) return "settings";
+            if (id.includes("/src/pages/MoviePage")) return "movie";
+            if (id.includes("/src/pages/TVPage")) return "tv";
+            if (id.includes("/src/pages/DownloadsPage")) return "downloads";
           },
         },
       },
