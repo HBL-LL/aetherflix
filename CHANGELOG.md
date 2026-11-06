@@ -2,6 +2,11 @@
 
 All notable changes to the **Streambert Web & Docker Edition** fork.
 
+## [1.2.1] - 2026-11-06
+
+### Changed
+- Dependency updates: Vite 8 with @vitejs/plugin-react 6, electron-builder 26.18, Capacitor 6.2.3, and newer Docker build actions in CI.
+
 ## [1.2.0] - 2026-11-05
 
 Synced with upstream Streambert 2.7.0 (features only; AetherFlix keeps its own design).
