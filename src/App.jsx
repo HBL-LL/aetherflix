@@ -1269,6 +1269,7 @@ export default function App() {
         {/* ── Episode check status pill / result card ── */}
         {episodeCheckStatus && (
           <div
+            className="episode-check-toast"
             style={{
               position: "fixed",
               bottom: 24,

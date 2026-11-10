@@ -3103,13 +3103,13 @@ function SettingsTopBar({ sectionRefs, contentRef }) {
 
   return (
     <div
+      className="settings-top-bar"
       style={{
         position: "sticky",
         top: 0,
         zIndex: 100,
         background: "var(--bg, #141414)",
         borderBottom: "1px solid var(--border)",
-        padding: "0 48px",
         backdropFilter: "blur(12px)",
       }}
     >
@@ -3776,14 +3776,13 @@ export default function SettingsPage({
 
       <div
         ref={contentRef}
-        className="fade-in"
-        style={{ padding: "40px 48px 80px" }}
+        className="fade-in settings-content"
       >
         {/* Page title */}
         <div
+          className="settings-title"
           style={{
             fontFamily: "var(--font-display)",
-            fontSize: 48,
             letterSpacing: 1,
             marginBottom: 6,
           }}
