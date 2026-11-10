@@ -101,288 +101,288 @@ export default function Sidebar({
   };
 
   return (
-    <>
-      {/* ── Desktop / Smart TV Navigation Rail ── */}
-      <aside className="sidebar desktop-only">
-        <div
-          className="sidebar-logo"
-          onClick={() => onNavigate("home")}
-          title="AetherFlix"
-          style={{ position: "relative" }}
-        >
-          <AetherFlixLogo />
-          {seasonalEvent && seasonalEvent.render()}
-        </div>
+      <>
+        {/* ── Desktop / Smart TV Navigation Rail ── */}
+        <aside className="sidebar desktop-only">
+          <div
+            className="sidebar-logo"
+            onClick={() => onNavigate("home")}
+            title="AetherFlix"
+            style={{ position: "relative" }}
+          >
+            <AetherFlixLogo />
+            {seasonalEvent && seasonalEvent.render()}
+          </div>
 
-        <nav className="sidebar-pill" aria-label="Main">
-          {canGoBack && (
-            <SideBtn onClick={onBack} icon={<BackIcon />} label="Back (Ctrl+Z)" />
+            <nav className="sidebar-pill" aria-label="Main">
+              {canGoBack && (
+                <SideBtn onClick={onBack} icon={<BackIcon />} label="Back (Ctrl+Z)" />
+              )}
+
+              <SideBtn
+                onClick={onSearch}
+                icon={<SearchIcon />}
+                label="Search  (⌘F)"
+              />
+              <SideBtn
+                active={page === "home"}
+                onClick={() => onNavigate("home")}
+                icon={<HomeIcon />}
+                label="Home"
+              />
+              <SideBtn
+                active={page === "history"}
+                onClick={() => onNavigate("history")}
+                icon={<HistoryIcon />}
+                label="Library & History"
+              />
+              <SideBtn
+                active={page === "downloads"}
+                onClick={() => onNavigate("downloads")}
+                icon={<DownloadsQueueIcon />}
+                label="Downloads"
+                badge={activeDownloads > 0 ? activeDownloads : null}
+              />
+
+              <div className="sidebar-sep" />
+
+              <div className="sidebar-saved">
+                {savedList.map((item, index) => {
+                  const key = `${item.media_type}_${item.id}`;
+                  const title = item.title || item.name;
+                  return (
+                    <div
+                      key={key}
+                      className={`saved-thumb${dragOver === index ? " drag-over" : ""}`}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, index)}
+                      onDragEnd={handleDragEnd}
+                      onDragEnter={(e) => handleDragEnter(e, index)}
+                      onDragOver={handleDragOver}
+                      onDrop={(e) => handleDrop(e, index)}
+                      onClick={() =>
+                        onNavigate(item.media_type === "tv" ? "tv" : "movie", item)
+                      }
+                      onContextMenu={(e) => handleContextMenu(e, item)}
+                      onMouseEnter={(e) => handleMouseEnter(e, title)}
+                      onMouseLeave={handleMouseLeave}
+                      style={{ cursor: "grab", position: "relative" }}
+                    >
+                      {item.poster_path ? (
+                        <img src={imgUrl(item.poster_path, "w200")} alt={title} />
+                      ) : (
+                        <div className="no-img">
+                          <FilmIcon />
+                        </div>
+                      )}
+                      {dragOver === index && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height: 3,
+                            background: "var(--accent, #dd3324)",
+                            borderRadius: 2,
+                            pointerEvents: "none",
+                          }}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+            <SideBtn
+              active={page === "settings"}
+              onClick={() => onNavigate("settings")}
+              icon={<SettingsIcon />}
+              label="Settings"
+            />
+          </nav>
+
+          {tooltip && (
+            <div className="saved-thumb-tooltip" style={{ top: tooltip.y }}>
+              {tooltip.title}
+            </div>
           )}
 
-          <SideBtn
-            onClick={onSearch}
-            icon={<SearchIcon />}
-            label="Search  (⌘F)"
-          />
-          <SideBtn
-            active={page === "home"}
-            onClick={() => onNavigate("home")}
-            icon={<HomeIcon />}
-            label="Home"
-          />
-          <SideBtn
-            active={page === "history"}
-            onClick={() => onNavigate("history")}
-            icon={<HistoryIcon />}
-            label="Library & History"
-          />
-          <SideBtn
-            active={page === "downloads"}
-            onClick={() => onNavigate("downloads")}
-            icon={<DownloadsQueueIcon />}
-            label="Downloads"
-            badge={activeDownloads > 0 ? activeDownloads : null}
-          />
-
-          <div className="sidebar-sep" />
-
-          <div className="sidebar-saved">
-            {savedList.map((item, index) => {
-              const key = `${item.media_type}_${item.id}`;
-              const title = item.title || item.name;
-              return (
+              {contextMenu && (
                 <div
-                  key={key}
-                  className={`saved-thumb${dragOver === index ? " drag-over" : ""}`}
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, index)}
-                  onDragEnd={handleDragEnd}
-                  onDragEnter={(e) => handleDragEnter(e, index)}
-                  onDragOver={handleDragOver}
-                  onDrop={(e) => handleDrop(e, index)}
-                  onClick={() =>
-                    onNavigate(item.media_type === "tv" ? "tv" : "movie", item)
-                  }
-                  onContextMenu={(e) => handleContextMenu(e, item)}
-                  onMouseEnter={(e) => handleMouseEnter(e, title)}
-                  onMouseLeave={handleMouseLeave}
-                  style={{ cursor: "grab", position: "relative" }}
-                >
-                  {item.poster_path ? (
-                    <img src={imgUrl(item.poster_path, "w200")} alt={title} />
-                  ) : (
-                    <div className="no-img">
-                      <FilmIcon />
-                    </div>
-                  )}
-                  {dragOver === index && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height: 3,
-                        background: "var(--accent, #dd3324)",
-                        borderRadius: 2,
-                        pointerEvents: "none",
-                      }}
-                    />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <SideBtn
-            active={page === "settings"}
-            onClick={() => onNavigate("settings")}
-            icon={<SettingsIcon />}
-            label="Settings"
-          />
-        </nav>
-
-        {tooltip && (
-          <div className="saved-thumb-tooltip" style={{ top: tooltip.y }}>
-            {tooltip.title}
-          </div>
-        )}
-
-        {contextMenu && (
-          <div
-            className="sidebar-context-menu"
-            style={{
-              position: "fixed",
-              top: contextMenu.y,
+                    className = "sidebar-context-menu"
+                    style = {{
+                      position: "fixed",
+                        top: contextMenu.y,
               left: contextMenu.x,
               zIndex: 9999,
             }}
-            onClick={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
           >
-            <div
-              className="sidebar-context-menu-item"
-              onClick={() => {
-                onRemoveSaved && onRemoveSaved(contextMenu.item);
-                setContextMenu(null);
-              }}
-            >
-              Remove
-            </div>
-          </div>
-        )}
-
-        <div className="sidebar-bottom">
-          <SideBtn
-            onClick={onShowShortcuts}
-            icon={<HelpIcon />}
-            label="Help & Shortcuts (?)"
-          />
-          {window.electron && !window.electron?._isWebPolyfill ? (
-            <button
-              className="sidebar-btn"
-              onClick={() => window.electron?.quitApp?.()}
-              title="Quit App"
-              style={{ color: "#e53e3e" }}
-            >
-              <QuitIcon />
-              <span className="tooltip">Quit App</span>
-            </button>
-          ) : (
-            <button
-              className="sidebar-btn"
-              onClick={() => window.electron?.windowToggleMaximize?.()}
-              title="Fullscreen"
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+              <div
+                className="sidebar-context-menu-item"
+                onClick={() => {
+                  onRemoveSaved && onRemoveSaved(contextMenu.item);
+                  setContextMenu(null);
+                }}
               >
-                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
-              </svg>
-              <span className="tooltip">Fullscreen</span>
-            </button>
-          )}
-        </div>
-      </aside>
-
-      {/* ── Mobile Top Header (Phones) ── */}
-      <header className="mobile-header mobile-only">
-        <div className="mobile-header-left">
-          {canGoBack && (
-            <button
-              className="mobile-header-btn"
-              onClick={onBack}
-              aria-label="Back"
-              title="Back"
-            >
-              <BackIcon />
-            </button>
-          )}
-          <div
-            className="mobile-header-brand"
-            onClick={() => onNavigate("home")}
-            role="button"
-            tabIndex={0}
-            title="AetherFlix Home"
-          >
-            <div className="mobile-logo-wrap">
-              <AetherFlixLogo />
-              {seasonalEvent && seasonalEvent.render()}
+                Remove
+              </div>
             </div>
-            <span className="mobile-brand-title">AetherFlix</span>
-          </div>
-        </div>
+          )}
 
-        <div className="mobile-header-right">
-          <button
-            className="mobile-header-btn"
-            onClick={onSearch}
-            aria-label="Search"
-            title="Search"
-          >
-            <SearchIcon />
-          </button>
-          <button
-            className="mobile-header-btn"
-            onClick={onShowShortcuts}
-            aria-label="Help"
-            title="Help & Shortcuts"
-          >
-            <HelpIcon />
-          </button>
-        </div>
-      </header>
-
-      {/* ── Mobile Bottom Navigation Bar (Phones) ── */}
-      <nav className="mobile-bottom-nav mobile-only" aria-label="Mobile Navigation">
-        <button
-          className={`mobile-nav-item ${page === "home" ? "active" : ""}`}
-          onClick={() => onNavigate("home")}
-          aria-label="Home"
-          aria-current={page === "home" ? "page" : undefined}
-        >
-          <div className="mobile-nav-icon">
-            <HomeIcon />
-          </div>
-          <span className="mobile-nav-label">Home</span>
-        </button>
-
-        <button
-          className="mobile-nav-item"
-          onClick={onSearch}
-          aria-label="Search"
-        >
-          <div className="mobile-nav-icon">
-            <SearchIcon />
-          </div>
-          <span className="mobile-nav-label">Search</span>
-        </button>
-
-        <button
-          className={`mobile-nav-item ${page === "history" ? "active" : ""}`}
-          onClick={() => onNavigate("history")}
-          aria-label="Library"
-          aria-current={page === "history" ? "page" : undefined}
-        >
-          <div className="mobile-nav-icon">
-            <HistoryIcon />
-          </div>
-          <span className="mobile-nav-label">Library</span>
-        </button>
-
-        <button
-          className={`mobile-nav-item ${page === "downloads" ? "active" : ""}`}
-          onClick={() => onNavigate("downloads")}
-          aria-label="Downloads"
-          aria-current={page === "downloads" ? "page" : undefined}
-        >
-          <div className="mobile-nav-icon">
-            <DownloadsQueueIcon />
-            {activeDownloads > 0 && (
-              <span className="mobile-nav-badge">{activeDownloads}</span>
+          <div className="sidebar-bottom">
+            <SideBtn
+              onClick={onShowShortcuts}
+              icon={<HelpIcon />}
+              label="Help & Shortcuts (?)"
+            />
+            {window.electron && !window.electron?._isWebPolyfill ? (
+              <button
+                className="sidebar-btn"
+                onClick={() => window.electron?.quitApp?.()}
+                title="Quit App"
+                style={{ color: "#e53e3e" }}
+              >
+                <QuitIcon />
+                <span className="tooltip">Quit App</span>
+              </button>
+            ) : (
+              <button
+                className="sidebar-btn"
+                onClick={() => window.electron?.windowToggleMaximize?.()}
+                title="Fullscreen"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+                </svg>
+                <span className="tooltip">Fullscreen</span>
+              </button>
             )}
           </div>
-          <span className="mobile-nav-label">Downloads</span>
-        </button>
+        </aside>
 
-        <button
-          className={`mobile-nav-item ${page === "settings" ? "active" : ""}`}
-          onClick={() => onNavigate("settings")}
-          aria-label="Settings"
-          aria-current={page === "settings" ? "page" : undefined}
-        >
-          <div className="mobile-nav-icon">
-            <SettingsIcon />
+            {/* ── Mobile Top Header (Phones) ── */ }
+            < header className="mobile-header mobile-only">
+          <div className="mobile-header-left">
+            {canGoBack && (
+              <button
+                className="mobile-header-btn"
+                onClick={onBack}
+                aria-label="Back"
+                title="Back"
+              >
+                <BackIcon />
+              </button>
+            )}
+            <div
+              className="mobile-header-brand"
+              onClick={() => onNavigate("home")}
+              role="button"
+              tabIndex={0}
+              title="AetherFlix Home"
+            >
+              <div className="mobile-logo-wrap">
+                <AetherFlixLogo />
+                {seasonalEvent && seasonalEvent.render()}
+              </div>
+              <span className="mobile-brand-title">AetherFlix</span>
+            </div>
           </div>
-          <span className="mobile-nav-label">Settings</span>
-        </button>
-      </nav>
+
+          <div className="mobile-header-right">
+            <button
+              className="mobile-header-btn"
+              onClick={onSearch}
+              aria-label="Search"
+              title="Search"
+            >
+              <SearchIcon />
+            </button>
+            <button
+              className="mobile-header-btn"
+              onClick={onShowShortcuts}
+              aria-label="Help"
+              title="Help & Shortcuts"
+            >
+              <HelpIcon />
+            </button>
+      </div>
+    </header>
+
+      {/* ── Mobile Bottom Navigation Bar (Phones) ── */ }
+  <nav className="mobile-bottom-nav mobile-only" aria-label="Mobile Navigation">
+    <button
+      className={`mobile-nav-item ${page === "home" ? "active" : ""}`}
+      onClick={() => onNavigate("home")}
+      aria-label="Home"
+      aria-current={page === "home" ? "page" : undefined}
+    >
+      <div className="mobile-nav-icon">
+        <HomeIcon />
+      </div>
+      <span className="mobile-nav-label">Home</span>
+    </button>
+
+    <button
+      className="mobile-nav-item"
+      onClick={onSearch}
+      aria-label="Search"
+    >
+      <div className="mobile-nav-icon">
+        <SearchIcon />
+      </div>
+      <span className="mobile-nav-label">Search</span>
+    </button>
+
+    <button
+      className={`mobile-nav-item ${page === "history" ? "active" : ""}`}
+      onClick={() => onNavigate("history")}
+      aria-label="Library"
+      aria-current={page === "history" ? "page" : undefined}
+    >
+      <div className="mobile-nav-icon">
+        <HistoryIcon />
+      </div>
+      <span className="mobile-nav-label">Library</span>
+    </button>
+
+    <button
+      className={`mobile-nav-item ${page === "downloads" ? "active" : ""}`}
+      onClick={() => onNavigate("downloads")}
+      aria-label="Downloads"
+      aria-current={page === "downloads" ? "page" : undefined}
+    >
+      <div className="mobile-nav-icon">
+        <DownloadsQueueIcon />
+        {activeDownloads > 0 && (
+          <span className="mobile-nav-badge">{activeDownloads}</span>
+        )}
+      </div>
+      <span className="mobile-nav-label">Downloads</span>
+    </button>
+
+    <button
+      className={`mobile-nav-item ${page === "settings" ? "active" : ""}`}
+      onClick={() => onNavigate("settings")}
+      aria-label="Settings"
+      aria-current={page === "settings" ? "page" : undefined}
+    >
+      <div className="mobile-nav-icon">
+        <SettingsIcon />
+      </div>
+      <span className="mobile-nav-label">Settings</span>
+    </button>
+  </nav>
     </>
   );
 }
